@@ -1,0 +1,134 @@
+{
+  "name": "Instagram Autopilot - Media Server",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "ig-media",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "0fcd970c-7d2c-4600-8f6f-83962730133f",
+      "name": "Media Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "6a5849d5-ad0e-417b-b4c9-e2f94915bd92"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n  \"data_dir\": \"/data/downloads/instagram\"\n}",
+        "options": {}
+      },
+      "id": "a073ab59-fc79-4558-aff3-a6d73deb7167",
+      "name": "Config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Serves one rendered file from <data_dir>/out so Meta (image_url / cover_url) and the report email can fetch it.\n// Only plain file names are accepted (letters, digits, _ . -; .jpg/.jpeg/.mp4), so nothing outside out/ can be read.\nconst fs = require('fs');\nconst q = $('Media Webhook').first().json.query || {};\nconst f = String(q.f || '');\nif (!/^[A-Za-z0-9_.-]+\\.(jpe?g|mp4)$/.test(f) || f.includes('..')) { throw new Error('invalid file name'); }\nconst p = $('Config').first().json.data_dir + '/out/' + f;\nconst buf = fs.readFileSync(p);\nconst mime = f.endsWith('.mp4') ? 'video/mp4' : 'image/jpeg';\nconst bin = await this.helpers.prepareBinaryData(buf, f, mime);\nreturn { json: { file: f, mime }, binary: { data: bin } };\n"
+      },
+      "id": "842180a0-23b8-4910-b33d-1aaed69fde62",
+      "name": "Read Media File",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "binary",
+        "responseBinaryPropertyName": "data",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "content-type",
+                "value": "={{ $json.mime || \"image/jpeg\" }}"
+              },
+              {
+                "name": "cache-control",
+                "value": "public, max-age=3600"
+              }
+            ]
+          }
+        }
+      },
+      "id": "836c8615-1a21-438c-8eba-d80a954772a4",
+      "name": "Respond with File",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        660,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Media server\nMeta fetches `image_url` / `cover_url` from a public URL, so this tiny webhook serves the rendered files from `<data_dir>/out`.\n\nURL: `https://<your-n8n>/webhook/ig-media?f=<file name>` -> put `https://<your-n8n>/webhook/ig-media?f=` into `public_media_url` in both Config nodes.\n\nActivate it first. Only plain file names from `out/` can be read (path traversal is rejected). Note: Meta could not fetch *videos* from here (n8n answers HEAD with 404 and sends no Range support), which is why reels use the resumable upload instead.",
+        "height": 320,
+        "width": 720,
+        "color": 4
+      },
+      "id": "df6f68eb-4e23-4c6e-b4a1-ab06ad2a5e69",
+      "name": "Note: Setup",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        -360
+      ]
+    }
+  ],
+  "connections": {
+    "Media Webhook": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "Read Media File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Media File": {
+      "main": [
+        [
+          {
+            "node": "Respond with File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

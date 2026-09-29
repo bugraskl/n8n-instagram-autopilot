@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "note": "Pre-approved reel music. Put the audio files next to this file and list them under tracks. The least-used track is picked each week; \"disabled\": true takes a track out of rotation. Entries whose file does not exist are skipped. No music at all = the reel uses only the opener's own sound (or is silent).",
+  "tracks": {
+    "your-track-01.mp3": {
+      "source": "where the track came from (licence!)",
+      "approvedBy": "who or what approved it",
+      "uses": 0,
+      "lastUsed": null
+    }
+  }
+}

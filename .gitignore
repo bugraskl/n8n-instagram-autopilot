@@ -1,0 +1,26 @@
+# local secrets / overrides
+.env
+.env.*
+*.local.json
+credentials*.json
+
+# runtime data if you keep a data dir next to the repo
+downloads/
+data/
+work/
+out/
+*.miff
+
+# never commit real content
+examples/data-dir/photos/*
+!examples/data-dir/photos/README.md
+*.mp3
+*.wav
+*.m4a
+*.ttf
+*.otf
+
+# tooling
+node_modules/
+.DS_Store
+*.log

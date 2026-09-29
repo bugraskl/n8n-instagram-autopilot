@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "note": "REFERENCE ONLY - do not copy into your data dir. Written by the weekly reel workflow at <data_dir>/state/reels_ledger.json. Status flow: reserved -> rendering -> ready -> published (or dry_run).",
+  "entries": [
+    {
+      "id": "reel_20260919_k3x9q",
+      "status": "published",
+      "frames": ["auto_story_1790100000000_5e6f7a8b", "auto_post_1790000000000_1a2b3c4d", "auto_story_1790200000000_9c0d1e2f"],
+      "dishes": ["Lamb Skewers", "Margherita Pizza", "Lemon Tart"],
+      "createdAt": "2026-09-19T09:30:02.000Z",
+      "script": {
+        "id": "s2",
+        "lines": ["Fire-kissed and glistening", "Blistered, bubbling, ready", "Bright, buttery, crisp"],
+        "cta1": "Which one is your favourite?",
+        "cta2": "Tell us in the comments",
+        "caption": "Lamb skewers, margherita pizza or lemon tart: which one are you ordering first?",
+        "q": 0.81,
+        "ok": true,
+        "scores": { "grammar": 2.6, "appeal": 2.7, "fit": 0.9, "cta": 2.1, "caption": 2.4 }
+      },
+      "music": "your-track-01.mp3",
+      "veo": { "status": "jev", "accept": true, "truthful": 0.88, "quality": 2.2, "why": "", "notes": "smooth push-in, steam added" },
+      "heroDish": "Lamb Skewers",
+      "video": "reel_20260919_k3x9q.mp4",
+      "duration": 15.5,
+      "bytes": 11000000,
+      "publishedAt": "2026-09-19T09:40:12.000Z",
+      "mediaId": "EXAMPLE_MEDIA_ID_2",
+      "story": { "ok": true, "mediaId": "EXAMPLE_MEDIA_ID_3" }
+    }
+  ]
+}

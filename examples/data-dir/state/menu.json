@@ -1,0 +1,15 @@
+{
+  "note": "Products that may be published. The AI may only pick a dish from this list, and a catalog/override name must also be on it.",
+  "items": [
+    "Margherita Pizza",
+    "Pepperoni Pizza",
+    "Grilled Chicken Wrap",
+    "Beef Burger",
+    "Lamb Skewers",
+    "Tomato Soup",
+    "Caesar Salad",
+    "Hummus",
+    "Lemon Tart",
+    "Chocolate Brownie"
+  ]
+}

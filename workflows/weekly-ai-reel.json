@@ -1,0 +1,3143 @@
+{
+  "name": "Instagram Autopilot - Weekly AI Reel",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "30 12 * * 6"
+            }
+          ]
+        }
+      },
+      "id": "435054a0-5964-4e29-b723-9b5b04332c39",
+      "name": "Weekly Schedule (Sat 12:30)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n  \"data_dir\": \"/data/downloads/instagram\",\n  \"public_media_url\": \"https://n8n.example.com/webhook/ig-media?f=\",\n  \"dry_run\": true,\n  \"brand_name\": \"Your Restaurant\",\n  \"brand_context\": \"a local restaurant\",\n  \"product_prefix\": \"\",\n  \"language\": \"English\",\n  \"locale\": \"en-US\",\n  \"ig_user_id\": \"YOUR_IG_USER_ID\",\n  \"graph_api_version\": \"v23.0\",\n  \"email_from\": \"Instagram Autopilot <you@example.com>\",\n  \"email_to\": \"you@example.com\",\n  \"hashtags\": {\n    \"brand\": \"YourRestaurant\",\n    \"city\": \"YourCity\",\n    \"discovery\": [\n      \"yourcityfood\",\n      \"yourcityeats\",\n      \"yourcityrestaurants\",\n      \"foodieyourcity\"\n    ],\n    \"fallback\": [\n      \"localfood\",\n      \"foodie\"\n    ]\n  },\n  \"reel_ctas\": [\n    \"Tell us in the comments\",\n    \"See you in the comments\",\n    \"Drop your pick below\"\n  ],\n  \"reel_fallback\": {\n    \"first_line\": \"This week's favourites\",\n    \"question\": \"Which one is your favourite?\",\n    \"cta\": \"Tell us in the comments\",\n    \"caption\": \"This week at {brand}: {dishes}. Which one is your favourite?\"\n  },\n  \"reel_line_max_words\": 4,\n  \"reel_line_max_chars\": 30,\n  \"hero_keywords\": \"skewer|kebab|steak|grill|ribs|wings|burger|chop\",\n  \"banned_phrases\": [\n    \"lunch\",\n    \"dinner\",\n    \"breakfast\",\n    \"today\",\n    \"tonight\",\n    \"day\",\n    \"break\",\n    \"treat yourself\",\n    \"great choice\",\n    \"feast of flavours\",\n    \"feast of flavors\",\n    \"leaves a mark on your palate\",\n    \"every bite\"\n  ],\n  \"prohibited_pattern\": \"%\\\\s*\\\\d|\\\\d\\\\s*%|[$€£¥]\\\\s*\\\\d|\\\\d\\\\s*(?:[$€£¥]|(?:usd|eur|gbp|dollars?|euros?)\\\\b)|discount|\\\\bsale\\\\b|\\\\bpromo|coupon|voucher|for free|cheapest|guarantee|\\\\b\\\\d{1,2}(?::\\\\d{2})?\\\\s*(?:am|pm)\\\\b|\\\\bin \\\\d+ min\",\n  \"jev_enabled\": true,\n  \"jev_model\": \"typesafe/jev-1.13\",\n  \"model_pro\": \"gemini-3.1-pro-preview\",\n  \"model_flash\": \"gemini-3.8-flash\",\n  \"model_video\": \"veo-3.1-lite-generate-preview\",\n  \"veo_resolution\": \"1080p\",\n  \"ffmpeg_path\": \"/data/downloads/bin/ffmpeg\",\n  \"font_path\": \"\",\n  \"slogan_color\": \"#FFFFFF\",\n  \"accent_color\": \"#E63946\"\n}",
+        "options": {}
+      },
+      "id": "ada2adda-afe0-4fe5-961c-f186fe7a7c69",
+      "name": "Config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const CFG = $('Config').first().json;\nconst LOC = CFG.locale || 'en-US';\nconst LANG = CFG.language || 'English';\nconst ROOT = CFG.data_dir;\nconst fs = require('fs');\nconst RL = ROOT + '/state/reels_ledger.json';\nconst readRL = () => { try { return JSON.parse(fs.readFileSync(RL, 'utf8')); } catch (e) { return {version: 1, entries: []}; } };\nconst saveRL = l => { const t = RL + '.tmp'; fs.writeFileSync(t, JSON.stringify(l, null, 2)); fs.renameSync(t, RL); };\nconst geminiText = j => { try { return (j.candidates[0].content.parts || []).filter(p => !p.thought).map(p => p.text || '').join(''); } catch (e) { return ''; } };\nconst parseJson = t => { try { return JSON.parse(String(t || '').replace(/```(?:json)?/gi, '').trim()); } catch (e) { return null; } };\nconst JEV_MODEL = CFG.jev_model || 'typesafe/jev-1.13';\nconst JEV_ON = CFG.jev_enabled !== false;\nconst shortName = d => String(d || '').replace(/\\s*\\([^)]*\\)\\s*/g, ' ').replace(/\\s+/g, ' ').trim();\nconst productLine = d => { const s = shortName(d); const p = String(CFG.product_prefix || '').trim(); return p && !s.toLocaleLowerCase(LOC).startsWith(p.toLocaleLowerCase(LOC)) ? p + ' ' + s : s; };\n\n// Frames published recently WITH an approved AI reframe: 4 different dishes, 9:16 story frames first\nconst ledgerPath = ROOT + '/state/ledger.json';\nif (!fs.existsSync(ledgerPath)) throw new Error('No ledger yet (' + ledgerPath + '): the reel is built from frames the autopublisher has published');\nconst L = JSON.parse(fs.readFileSync(ledgerPath, 'utf8')).entries || [];\nconst rl = readRL();\nconst recentFrames = new Set(rl.entries.slice(-2).flatMap(e => e.frames || []));\nconst framePath = e => { for (const ext of ['jpg', 'png']) { const p = ROOT + '/work/' + e.base + '_' + e.kind + '.' + ext; if (fs.existsSync(p)) return p; } return ''; };\nconst now = Date.now();\nconst pool = L.filter(e => e.status === 'published' && e.framed === true && e.dish).map(e => ({base: e.base, kind: e.kind, dish: e.dish, caption: e.caption || '', title: e.redTitle || '',\n  publishedAt: e.publishedAt, age: (now - Date.parse(e.publishedAt || e.createdAt || 0)) / 864e5, path: framePath(e)})).filter(e => e.path);\nconst pick = []; const dishes = new Set();\n// First frames not used in the last two reels; if the pool is small, allow them too.\n// Windows: last 8 days, then 30 days, then everything.\nfor (const allowRecent of [false, true]) {\n  for (const win of [8, 30, 3650]) {\n    const c = pool.filter(e => e.age <= win && (allowRecent || !recentFrames.has(e.base))).sort((a, b) => (a.kind === b.kind ? a.age - b.age : (a.kind === 'story' ? -1 : 1)));\n    for (const e of c) { if (pick.length >= 4) break; if (!dishes.has(e.dish)) { dishes.add(e.dish); pick.push(e); } }\n    if (pick.length >= 4) break;\n  }\n  if (pick.length >= 3) break;\n}\nif (pick.length < 2) throw new Error('Not enough frames for a reel (' + pick.length + '); it needs published, AI-reframed images of at least 2 different dishes');\nconst d = new Date(); const id = 'reel_' + d.toISOString().slice(0, 10).replace(/-/g, '') + '_' + Math.random().toString(36).slice(2, 7);\nrl.entries.push({id, status: 'reserved', frames: pick.map(p => p.base), dishes: pick.map(p => p.dish), createdAt: d.toISOString()}); saveRL(rl);\n// Jev: which frame turns into the most appetizing slow cinematic video (steam, sizzle)?\nconst criteria = {}; pick.forEach((p, i) => criteria['k' + i] = p.dish + ' — ' + (p.caption || p.title).slice(0, 160));\nreturn [{json: {id, frames: pick, body: {model: JEV_MODEL, state: {restaurant: CFG.brand_name + ' - ' + (CFG.brand_context || 'a restaurant'), candidates: pick.map((p, i) => ({option: 'k' + i, dish: p.dish, description: p.caption || p.title}))},\n  questions: {hero: {type: 'choice', instructions: 'Which of these dishes will look most appetizing as the opening shot of an Instagram Reel, animated as a slow cinematic camera push-in with rising steam and glistening, sizzling food? Dishes with visible texture, char or glaze (for example grilled meat on skewers or plates) usually work better than wrapped or flat food.', criteria}}}}}];\n"
+      },
+      "id": "ccd7cfd9-96cc-4f30-a138-7e5a03508f4b",
+      "name": "Pick Frames",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "2b230f6e-6d56-472d-bb57-0c6ca1795233",
+              "leftValue": "={{ $('Config').first().json.jev_enabled }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "ef813d34-c70b-4b8d-a1b4-01ce2f358b51",
+      "name": "Jev On? (Opener)",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        660,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/alpha/decisions",
+        "options": {
+          "timeout": 30000
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.body }}"
+      },
+      "id": "31887180-7aac-474a-b438-005bba705082",
+      "name": "Jev: Pick Opener",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        880,
+        -100
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 3000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const CFG = $('Config').first().json;\nconst LOC = CFG.locale || 'en-US';\nconst LANG = CFG.language || 'English';\nconst ROOT = CFG.data_dir;\nconst fs = require('fs');\nconst RL = ROOT + '/state/reels_ledger.json';\nconst readRL = () => { try { return JSON.parse(fs.readFileSync(RL, 'utf8')); } catch (e) { return {version: 1, entries: []}; } };\nconst saveRL = l => { const t = RL + '.tmp'; fs.writeFileSync(t, JSON.stringify(l, null, 2)); fs.renameSync(t, RL); };\nconst geminiText = j => { try { return (j.candidates[0].content.parts || []).filter(p => !p.thought).map(p => p.text || '').join(''); } catch (e) { return ''; } };\nconst parseJson = t => { try { return JSON.parse(String(t || '').replace(/```(?:json)?/gi, '').trim()); } catch (e) { return null; } };\nconst JEV_MODEL = CFG.jev_model || 'typesafe/jev-1.13';\nconst JEV_ON = CFG.jev_enabled !== false;\nconst shortName = d => String(d || '').replace(/\\s*\\([^)]*\\)\\s*/g, ' ').replace(/\\s+/g, ' ').trim();\nconst productLine = d => { const s = shortName(d); const p = String(CFG.product_prefix || '').trim(); return p && !s.toLocaleLowerCase(LOC).startsWith(p.toLocaleLowerCase(LOC)) ? p + ' ' + s : s; };\n\n// Opening frame first, the others in order; every shot gets a different motion\nconst s = $('Pick Frames').first().json;\nconst a = $json.answers && $json.answers.hero;\nlet hi = a && /^k\\d$/.test(a.choice) ? Number(a.choice.slice(1)) : -1;\nif (hi < 0 || !s.frames[hi]) {\n  // Without Jev: first dish matching the hero keywords, else the first frame\n  let re = null; try { re = CFG.hero_keywords ? new RegExp(CFG.hero_keywords, 'iu') : null; } catch (e) {}\n  hi = Math.max(0, re ? s.frames.findIndex(f => re.test(f.dish)) : 0);\n}\nconst frames = [s.frames[hi], ...s.frames.filter((_, i) => i !== hi)];\nreturn [{json: {id: s.id, frames, heroChoice: {by: a ? 'jev' : 'rule', dish: frames[0].dish, confidence: a ? a.confidence : null}}}];\n"
+      },
+      "id": "9c604033-9a83-4575-a640-455ab7033901",
+      "name": "Opener Decision",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const CFG = $('Config').first().json;\nconst LOC = CFG.locale || 'en-US';\nconst LANG = CFG.language || 'English';\nconst ROOT = CFG.data_dir;\nconst fs = require('fs');\nconst RL = ROOT + '/state/reels_ledger.json';\nconst readRL = () => { try { return JSON.parse(fs.readFileSync(RL, 'utf8')); } catch (e) { return {version: 1, entries: []}; } };\nconst saveRL = l => { const t = RL + '.tmp'; fs.writeFileSync(t, JSON.stringify(l, null, 2)); fs.renameSync(t, RL); };\nconst geminiText = j => { try { return (j.candidates[0].content.parts || []).filter(p => !p.thought).map(p => p.text || '').join(''); } catch (e) { return ''; } };\nconst parseJson = t => { try { return JSON.parse(String(t || '').replace(/```(?:json)?/gi, '').trim()); } catch (e) { return null; } };\nconst JEV_MODEL = CFG.jev_model || 'typesafe/jev-1.13';\nconst JEV_ON = CFG.jev_enabled !== false;\nconst shortName = d => String(d || '').replace(/\\s*\\([^)]*\\)\\s*/g, ' ').replace(/\\s+/g, ' ').trim();\nconst productLine = d => { const s = shortName(d); const p = String(CFG.product_prefix || '').trim(); return p && !s.toLocaleLowerCase(LOC).startsWith(p.toLocaleLowerCase(LOC)) ? p + ' ' + s : s; };\n\nconst k = $json;\nconst n = k.frames.length;\nconst LW = CFG.reel_line_max_words || 4, LC = CFG.reel_line_max_chars || 30;\nconst banned = (CFG.banned_phrases || []).join(', ');\nconst shots = k.frames.map((f, i) => (i + 1) + ') ' + f.dish + ' — in the photo: ' + (f.caption || f.title));\nconst prompt = 'Write the on-screen text and the caption for the weekly Instagram Reel of ' + CFG.brand_name + ' (' + (CFG.brand_context || 'a restaurant') + '). Write everything in ' + LANG + '. Shot order:\\n' + shots.join('\\n') +\n '\\nEvery shot shows a short white slogan with the product line (for example \"' + productLine(k.frames[0].dish) + '\") below it in the accent colour; the closing card shows a question and a short call to action.\\n' +\n 'Write THREE CLEARLY DIFFERENT alternatives. In each alternative:\\n' +\n '- lines: one slogan per dish, in shot order (' + n + ' in total). Each at most ' + LW + ' words and ' + LC + ' characters, a complete, natural phrase about the texture or cooking of that dish as visible in the photo, WITHOUT the dish name, no trailing period. The first slogan must be a strong opener that stops the scroll.\\n' +\n '- cta1: the closing question, at most 6 words, ending with a question mark, inviting viewers to write in the comments which dish they would pick; address the viewer directly (e.g. \"Which one is your favourite?\").\\n' +\n '- caption: 1-2 short, natural sentences addressing the viewer, mentioning at least two of the dish names, warm and appetizing.\\n' +\n (banned ? 'Do not use these words or phrases: ' + banned + '. ' : '') + 'No prices, promotions, opening hours, addresses, emoji or hashtags.\\n' +\n 'JSON only: {\"options\":[{\"lines\":[\"...\"],\"cta1\":\"...\",\"caption\":\"...\"},{...},{...}]}';\nreturn [{json: {...k, body: {contents: [{parts: [{text: prompt}]}], generationConfig: {responseMimeType: 'application/json', temperature: 0.9}}}}];\n"
+      },
+      "id": "388ba676-901e-42f4-a16a-ff5dfc17f7f2",
+      "name": "Build Script Prompt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1320,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ 'https://generativelanguage.googleapis.com/v1beta/models/' + $('Config').first().json.model_pro + ':generateContent' }}",
+        "options": {
+          "timeout": 180000
+        },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googlePalmApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.body }}"
+      },
+      "id": "2a926e8d-21c5-4cd2-93b9-3b2ce8c71e1b",
+      "name": "Gemini: Write Scripts",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1540,
+        0
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 3000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const CFG = $('Config').first().json;\nconst LOC = CFG.locale || 'en-US';\nconst LANG = CFG.language || 'English';\nconst ROOT = CFG.data_dir;\nconst fs = require('fs');\nconst RL = ROOT + '/state/reels_ledger.json';\nconst readRL = () => { try { return JSON.parse(fs.readFileSync(RL, 'utf8')); } catch (e) { return {version: 1, entries: []}; } };\nconst saveRL = l => { const t = RL + '.tmp'; fs.writeFileSync(t, JSON.stringify(l, null, 2)); fs.renameSync(t, RL); };\nconst geminiText = j => { try { return (j.candidates[0].content.parts || []).filter(p => !p.thought).map(p => p.text || '').join(''); } catch (e) { return ''; } };\nconst parseJson = t => { try { return JSON.parse(String(t || '').replace(/```(?:json)?/gi, '').trim()); } catch (e) { return null; } };\nconst JEV_MODEL = CFG.jev_model || 'typesafe/jev-1.13';\nconst JEV_ON = CFG.jev_enabled !== false;\nconst shortName = d => String(d || '').replace(/\\s*\\([^)]*\\)\\s*/g, ' ').replace(/\\s+/g, ' ').trim();\nconst productLine = d => { const s = shortName(d); const p = String(CFG.product_prefix || '').trim(); return p && !s.toLocaleLowerCase(LOC).startsWith(p.toLocaleLowerCase(LOC)) ? p + ' ' + s : s; };\n\nconst k = $('Build Script Prompt').first().json;\nconst ai = parseJson(geminiText($json)) || {};\nconst norm = s => String(s || '').trim().toLocaleLowerCase(LOC);\nconst clean = s => String(s || '').replace(/[\\r\\n\\t]+/g, ' ').replace(/\\s+/g, ' ').trim();\nconst reEsc = s => String(s).replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&');\nconst bannedList = (CFG.banned_phrases || []).filter(Boolean);\nconst cliche = bannedList.length ? new RegExp('(?<![\\\\p{L}\\\\p{N}])(?:' + bannedList.map(reEsc).join('|') + ')(?![\\\\p{L}\\\\p{N}])', 'iu') : null;\nconst prohibited = CFG.prohibited_pattern ? new RegExp(CFG.prohibited_pattern, 'iu') : null;\nconst n = k.frames.length;\nconst LW = CFG.reel_line_max_words || 4, LC = CFG.reel_line_max_chars || 30;\n// The short call to action rotates through an approved list (generated ones drifted into broken grammar)\nconst CTAS = (CFG.reel_ctas && CFG.reel_ctas.length) ? CFG.reel_ctas : ['Tell us in the comments'];\nconst CTA2 = CTAS[readRL().entries.length % CTAS.length];\nconst why = o => {\n  if (!Array.isArray(o.lines) || o.lines.length !== n) return 'wrong number of slogans';\n  for (let i = 0; i < n; i++) { const t = o.lines[i];\n    if (!t) return 'empty slogan'; if (t.length > LC || t.split(/\\s+/).length > LW) return 'slogan too long: ' + t;\n    if (norm(t).includes(norm(shortName(k.frames[i].dish)))) return 'slogan repeats the dish name'; }\n  if (!o.cta1 || !/[?？؟]$/.test(o.cta1) || o.cta1.split(/\\s+/).length > 7 || o.cta1.length > 40) return 'closing question not suitable';\n  if (!o.caption || o.caption.length < 40 || o.caption.length > 300) return 'caption length';\n  const all = [...o.lines, o.cta1, o.cta2, o.caption].join(' ');\n  if ((prohibited && prohibited.test(all)) || all.includes('#')) return 'prohibited phrase';\n  if (cliche && cliche.test(all)) return 'banned cliché';\n  return '';\n};\nconst cands = [], fails = [];\n(Array.isArray(ai.options) ? ai.options : []).forEach((o, i) => {\n  const c = {id: 's' + (i + 1), lines: (o.lines || []).map(x => clean(x).replace(/[.!…]+$/, '')), cta1: clean(o.cta1), cta2: CTA2, caption: clean(o.caption)};\n  const w = why(c); if (w) fails.push({...c, fail: w}); else cands.push(c);\n});\n// \"Weakest line\" grammar question: averaging over all lines missed a single broken line\nconst Q = {\n  grammar: {type: 'score', instructions: 'Look at every on-screen line separately (each slogan, the closing question and the closing call). Rate the ' + LANG + ' grammar and naturalness of the WORST single line. A short headline may be a noun phrase, but it must be complete and idiomatic; wrong inflections or verb forms make it broken.', criteria: ['broken or incomplete ' + LANG, 'awkward or unnatural', 'correct but plain', 'natural, fluent ' + LANG]},\n  appeal: {type: 'score', instructions: 'How appetizing, specific and varied are the on-screen slogans for a Reel of ' + (CFG.brand_context || 'a restaurant') + '?', criteria: ['generic or dull', 'acceptable', 'appetizing', 'very appetizing and specific']},\n  fit: {type: 'noul', instructions: 'Does every slogan fit the dish it is paired with (it describes something plausible for that dish, e.g. not skewers for a wrap)?', criteria: {true: 'All slogans fit their dishes', false: 'At least one slogan contradicts its dish'}},\n  cta: {type: 'score', instructions: 'How engaging is the closing question plus call to action at inviting comments?', criteria: ['weak', 'acceptable', 'good', 'very engaging']},\n  caption: {type: 'score', instructions: 'Rate the Instagram caption: natural ' + LANG + ', appetizing, mentions the dishes, not a hard sell.', criteria: ['poor', 'acceptable', 'good', 'excellent']}\n};\nconst items = cands.map((c, i) => ({json: {idx: i, cand: c, body: {model: JEV_MODEL, state: {brand: CFG.brand_name + ' - ' + (CFG.brand_context || 'a restaurant'), format: 'Instagram Reel',\n  shots: k.frames.map((f, j) => ({dish: f.dish, slogan: c.lines[j]})), closing_question: c.cta1, closing_call: c.cta2, caption: c.caption}, questions: Q}}}));\nif (!items.length) items.push({json: {idx: -1, cand: null, body: {model: JEV_MODEL, state: 'connectivity check', questions: {ok: {type: 'noul', instructions: 'Is this a connectivity check?', criteria: {true: 'yes', false: 'no'}}}}}});\nitems[0].json.fails = fails;\nreturn items;\n"
+      },
+      "id": "ce494a0f-a39c-4c36-a585-5893446fe192",
+      "name": "Script Questions",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1760,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "2672908c-7236-4196-abe7-039d69135b76",
+              "leftValue": "={{ $('Config').first().json.jev_enabled }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "663c5727-54fb-4d1a-8139-74ed96d00d95",
+      "name": "Jev On? (Script)",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1980,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/alpha/decisions",
+        "options": {
+          "timeout": 30000
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.body }}"
+      },
+      "id": "820409b7-7bc2-4f44-b6e9-383330f1b7ae",
+      "name": "Jev: Score Scripts",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        2200,
+        -100
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 3000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const CFG = $('Config').first().json;\nconst LOC = CFG.locale || 'en-US';\nconst LANG = CFG.language || 'English';\nconst ROOT = CFG.data_dir;\nconst fs = require('fs');\nconst RL = ROOT + '/state/reels_ledger.json';\nconst readRL = () => { try { return JSON.parse(fs.readFileSync(RL, 'utf8')); } catch (e) { return {version: 1, entries: []}; } };\nconst saveRL = l => { const t = RL + '.tmp'; fs.writeFileSync(t, JSON.stringify(l, null, 2)); fs.renameSync(t, RL); };\nconst geminiText = j => { try { return (j.candidates[0].content.parts || []).filter(p => !p.thought).map(p => p.text || '').join(''); } catch (e) { return ''; } };\nconst parseJson = t => { try { return JSON.parse(String(t || '').replace(/```(?:json)?/gi, '').trim()); } catch (e) { return null; } };\nconst JEV_MODEL = CFG.jev_model || 'typesafe/jev-1.13';\nconst JEV_ON = CFG.jev_enabled !== false;\nconst shortName = d => String(d || '').replace(/\\s*\\([^)]*\\)\\s*/g, ' ').replace(/\\s+/g, ' ').trim();\nconst productLine = d => { const s = shortName(d); const p = String(CFG.product_prefix || '').trim(); return p && !s.toLocaleLowerCase(LOC).startsWith(p.toLocaleLowerCase(LOC)) ? p + ' ' + s : s; };\n\nconst k = $('Build Script Prompt').first().json;\nconst reqs = $('Script Questions').all(); const res = $input.all();\nconst rated = [];\nreqs.forEach((r, i) => { if (r.json.idx < 0) return; const a = res[i] && res[i].json && res[i].json.answers;\n  // Jev unreachable/disabled (or an incomplete answer): keep the candidate, it already passed the rules\n  if (!a || !a.grammar || !a.appeal || !a.fit || !a.cta || !a.caption) { rated.push({...r.json.cand, q: null, ok: true}); return; }\n  const g = a.grammar.score, ap = a.appeal.score, fit = a.fit.noul, cta = a.cta.score, cap = a.caption.score;\n  const q = 0.30 * ap / 3 + 0.25 * g / 3 + 0.15 * fit + 0.15 * cta / 3 + 0.15 * cap / 3;\n  rated.push({...r.json.cand, q: Math.round(q * 1000) / 1000, ok: g >= 1.5 && fit >= 0.4, scores: {grammar: g, appeal: ap, fit, cta, caption: cap}});\n});\nconst sc = c => c.q == null ? 0.5 : c.q;\nlet best = rated.filter(c => c.ok).sort((a, b) => sc(b) - sc(a))[0];\nlet source = JEV_ON ? 'jev' : 'rules only';\nif (!best) { // safe fallback script: product lines only + a fixed closing card\n  source = 'fallback';\n  const F = CFG.reel_fallback || {};\n  const names = k.frames.map(f => shortName(f.dish).toLocaleLowerCase(LOC));\n  let list; try { list = new Intl.ListFormat(LOC, {style: 'long', type: 'conjunction'}).format(names); } catch (e) { list = names.join(', '); }\n  best = {id: 'fallback', lines: k.frames.map((_, i) => i === 0 ? (F.first_line || '') : ''), cta1: F.question || 'Which one is your favourite?',\n    cta2: F.cta || (CFG.reel_ctas || [])[0] || '', caption: String(F.caption || '{dishes}').replace('{brand}', CFG.brand_name).replace('{dishes}', list), q: null};\n}\nreturn [{json: {...k, body: undefined, script: best, scriptSource: source, scriptRated: rated, scriptFails: reqs[0].json.fails || []}}];\n"
+      },
+      "id": "a47066bd-95a9-450a-9e9e-0488028cd9a0",
+      "name": "Script Decision",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2420,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const CFG = $('Config').first().json;\nconst LOC = CFG.locale || 'en-US';\nconst LANG = CFG.language || 'English';\nconst ROOT = CFG.data_dir;\nconst fs = require('fs');\nconst RL = ROOT + '/state/reels_ledger.json';\nconst readRL = () => { try { return JSON.parse(fs.readFileSync(RL, 'utf8')); } catch (e) { return {version: 1, entries: []}; } };\nconst saveRL = l => { const t = RL + '.tmp'; fs.writeFileSync(t, JSON.stringify(l, null, 2)); fs.renameSync(t, RL); };\nconst geminiText = j => { try { return (j.candidates[0].content.parts || []).filter(p => !p.thought).map(p => p.text || '').join(''); } catch (e) { return ''; } };\nconst parseJson = t => { try { return JSON.parse(String(t || '').replace(/```(?:json)?/gi, '').trim()); } catch (e) { return null; } };\nconst JEV_MODEL = CFG.jev_model || 'typesafe/jev-1.13';\nconst JEV_ON = CFG.jev_enabled !== false;\nconst shortName = d => String(d || '').replace(/\\s*\\([^)]*\\)\\s*/g, ' ').replace(/\\s+/g, ' ').trim();\nconst productLine = d => { const s = shortName(d); const p = String(CFG.product_prefix || '').trim(); return p && !s.toLocaleLowerCase(LOC).startsWith(p.toLocaleLowerCase(LOC)) ? p + ' ' + s : s; };\n\n// Opener: image-to-video from the real frame (Veo 3.1 Lite, 8 s). The dish identity must not change.\nconst k = $json; const hero = k.frames[0];\nconst buf = fs.readFileSync(hero.path);\nconst mime = hero.path.endsWith('.png') ? 'image/png' : 'image/jpeg';\nconst prompt = 'Cinematic food commercial shot for ' + (CFG.brand_context || 'a restaurant') + '. Very slow, smooth camera push-in toward the main dish (' + hero.dish + '). ' +\n 'Thin wisps of steam rise from the hot food, the food glistens and gently sizzles under warm light. ' +\n 'The food, plate, garnish, drinks and every object must stay exactly identical to the image: do not add, remove, duplicate, morph or change any food. ' +\n 'No hands, no people, no text, no logos. Warm moody restaurant lighting, shallow depth of field. The top third of the frame stays dark and empty.';\nreturn [{json: {...k, body: {instances: [{prompt, image: {bytesBase64Encoded: buf.toString('base64'), mimeType: mime}}], parameters: {aspectRatio: '9:16', durationSeconds: 8, resolution: CFG.veo_resolution || '1080p'}}}}];\n"
+      },
+      "id": "8a86fbc7-805d-43f7-9f5c-9c96fbd8ecf0",
+      "name": "Build Veo Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        700
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ 'https://generativelanguage.googleapis.com/v1beta/models/' + $('Config').first().json.model_video + ':predictLongRunning' }}",
+        "options": {
+          "timeout": 120000
+        },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googlePalmApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.body }}"
+      },
+      "id": "e9e0ede7-8326-41d2-b5e2-6069f39b6c7f",
+      "name": "Veo: Start",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        660,
+        700
+      ],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 3000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "e270581a-0eea-4c5c-9047-5982b1a29a8d",
+              "leftValue": "={{ $json.name }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "3ef18e94-d2dc-4a00-9385-687b3f97b680",
+      "name": "Veo Started?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        880,
+        700
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 90,
+        "unit": "seconds"
+      },
+      "id": "ccc3c42a-6e02-424e-9ecf-dd9999d2123e",
+      "name": "Veo Wait 1",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1100,
+        700
+      ],
+      "webhookId": "78d9848a-86c5-4d61-9b9a-0b3f37c33c6a"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ 'https://generativelanguage.googleapis.com/v1beta/' + $('Veo: Start').first().json.name }}",
+        "options": {
+          "timeout": 60000
+        },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googlePalmApi"
+      },
+      "id": "7681d916-4186-423b-8011-bf086f41788e",
+      "name": "Veo Status 1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1320,
+        700
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 3000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "5af362f3-1166-4984-9894-fdc7e4a7f23e",
+              "leftValue": "={{ $json.done }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "8d7b91b6-87b4-4be2-a550-0d9b8dcbb3aa",
+      "name": "Veo Done 1?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1540,
+        700
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 60,
+        "unit": "seconds"
+      },
+      "id": "69dba74b-0c9e-43ed-89f1-3b632774791a",
+      "name": "Veo Wait 2",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1760,
+        860
+      ],
+      "webhookId": "026cda94-7844-4b08-9cc7-21adfc4d9264"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ 'https://generativelanguage.googleapis.com/v1beta/' + $('Veo: Start').first().json.name }}",
+        "options": {
+          "timeout": 60000
+        },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googlePalmApi"
+      },
+      "id": "38a721fb-2643-4664-acae-f2ace6de5e8c",
+      "name": "Veo Status 2",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1980,
+        860
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 3000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "b1a7c7d1-198c-415f-9d89-26819854253d",
+              "leftValue": "={{ $json.done }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "90bd40c7-7b38-4907-93d2-f7222b701772",
+      "name": "Veo Done 2?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        2200,
+        860
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 90,
+        "unit": "seconds"
+      },
+      "id": "db3240b8-bbc7-47a8-9e16-956d466aa926",
+      "name": "Veo Wait 3",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2420,
+        1020
+      ],
+      "webhookId": "d6e95ab8-fee9-4129-a513-8e0b6d1ff4a2"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ 'https://generativelanguage.googleapis.com/v1beta/' + $('Veo: Start').first().json.name }}",
+        "options": {
+          "timeout": 60000
+        },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googlePalmApi"
+      },
+      "id": "b577aa7f-f418-4287-9e38-ec7e48fa12fd",
+      "name": "Veo Status 3",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        2640,
+        1020
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 3000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "449146fb-53bb-4405-a5a7-85a91c219325",
+              "leftValue": "={{ $json.done }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "f5728a49-d826-41b6-afd7-aac2592c3d04",
+      "name": "Veo Done 3?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        2860,
+        1020
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Veo could not start or did not finish in time: the opener becomes a slow zoom on the real frame\nconst k = $('Script Decision').first().json;\nconst err = $json.error ? JSON.stringify($json.error).slice(0, 200) : ($json.done === false || $json.name ? 'timed out' : 'could not start');\nreturn [{json: {...k, heroVideo: null, veo: {status: 'none', accept: false, why: err}}}];\n"
+      },
+      "id": "bc32c718-740c-4223-afd0-9dc563397857",
+      "name": "No Veo Clip",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3080,
+        1180
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $json.response.generateVideoResponse.generatedSamples[0].video.uri }}",
+        "options": {
+          "timeout": 180000,
+          "response": {
+            "response": {
+              "responseFormat": "file",
+              "outputPropertyName": "video"
+            }
+          }
+        },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googlePalmApi"
+      },
+      "id": "df5d55a6-edde-4e36-a0db-5efdca33645d",
+      "name": "Veo: Download",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        3080,
+        700
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 3000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const CFG = $('Config').first().json;\nconst LOC = CFG.locale || 'en-US';\nconst LANG = CFG.language || 'English';\nconst ROOT = CFG.data_dir;\nconst fs = require('fs');\nconst RL = ROOT + '/state/reels_ledger.json';\nconst readRL = () => { try { return JSON.parse(fs.readFileSync(RL, 'utf8')); } catch (e) { return {version: 1, entries: []}; } };\nconst saveRL = l => { const t = RL + '.tmp'; fs.writeFileSync(t, JSON.stringify(l, null, 2)); fs.renameSync(t, RL); };\nconst geminiText = j => { try { return (j.candidates[0].content.parts || []).filter(p => !p.thought).map(p => p.text || '').join(''); } catch (e) { return ''; } };\nconst parseJson = t => { try { return JSON.parse(String(t || '').replace(/```(?:json)?/gi, '').trim()); } catch (e) { return null; } };\nconst JEV_MODEL = CFG.jev_model || 'typesafe/jev-1.13';\nconst JEV_ON = CFG.jev_enabled !== false;\nconst shortName = d => String(d || '').replace(/\\s*\\([^)]*\\)\\s*/g, ' ').replace(/\\s+/g, ' ').trim();\nconst productLine = d => { const s = shortName(d); const p = String(CFG.product_prefix || '').trim(); return p && !s.toLocaleLowerCase(LOC).startsWith(p.toLocaleLowerCase(LOC)) ? p + ' ' + s : s; };\n\n// Save the Veo clip, make a small proxy for the review, and a small copy of the source frame\nconst {execFileSync} = require('child_process');\nconst k = $('Script Decision').first().json;\nconst dir = ROOT + '/work/' + k.id; fs.mkdirSync(dir, {recursive: true});\nconst buf = await this.helpers.getBinaryDataBuffer(0, 'video');\nif (!buf || buf.length < 200000) throw new Error('Veo clip is empty');\nconst hero = dir + '/hero.mp4'; fs.writeFileSync(hero, buf);\nexecFileSync(CFG.ffmpeg_path || 'ffmpeg', ['-v', 'error', '-y', '-i', hero, '-vf', 'scale=540:960,fps=12', '-an', '-c:v', 'libx264', '-crf', '30', dir + '/hero_qa.mp4']);\nexecFileSync('gm', ['convert', k.frames[0].path, '-resize', '540x960', '-quality', '85', dir + '/hero_src.jpg']);\nconst prompt = 'Image 1 is the original restaurant food photograph. The video is an AI animation generated from it for an Instagram Reel; it was only allowed to add camera motion, steam, heat shimmer and glistening light. ' +\n 'Watch the whole video and report only what you can see. Return JSON only: {\"same_dish_throughout\":true,\"dish_changes\":\"how the food differs from image 1 at any point, or \\\"same\\\"\",' +\n '\"added_objects\":[\"objects or food that appear but are not in image 1\"],\"removed_objects\":[\"items from image 1 that disappear\"],\"morphing_or_melting\":false,\"flicker_or_glitches\":false,' +\n '\"people_hands_text\":false,\"motion_quality\":\"smooth|jerky|static\",\"notes\":\"...\"}. Write notes and list items in English.';\nreturn [{json: {heroVideo: hero, body: {contents: [{parts: [{text: prompt}, {inlineData: {mimeType: 'image/jpeg', data: fs.readFileSync(dir + '/hero_src.jpg').toString('base64')}},\n  {inlineData: {mimeType: 'video/mp4', data: fs.readFileSync(dir + '/hero_qa.mp4').toString('base64')}}]}], generationConfig: {responseMimeType: 'application/json', temperature: 0.2}}}}];\n"
+      },
+      "id": "60d5fadc-6f3e-43cc-bdac-432c88c910a6",
+      "name": "Save Veo Clip",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3300,
+        700
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ 'https://generativelanguage.googleapis.com/v1beta/models/' + $('Config').first().json.model_flash + ':generateContent' }}",
+        "options": {
+          "timeout": 180000
+        },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googlePalmApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.body }}"
+      },
+      "id": "29390fb0-aabc-44c5-b4fd-862c3e1cf77e",
+      "name": "Gemini: Review Clip",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        3520,
+        700
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 3000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const CFG = $('Config').first().json;\nconst LOC = CFG.locale || 'en-US';\nconst LANG = CFG.language || 'English';\nconst ROOT = CFG.data_dir;\nconst fs = require('fs');\nconst RL = ROOT + '/state/reels_ledger.json';\nconst readRL = () => { try { return JSON.parse(fs.readFileSync(RL, 'utf8')); } catch (e) { return {version: 1, entries: []}; } };\nconst saveRL = l => { const t = RL + '.tmp'; fs.writeFileSync(t, JSON.stringify(l, null, 2)); fs.renameSync(t, RL); };\nconst geminiText = j => { try { return (j.candidates[0].content.parts || []).filter(p => !p.thought).map(p => p.text || '').join(''); } catch (e) { return ''; } };\nconst parseJson = t => { try { return JSON.parse(String(t || '').replace(/```(?:json)?/gi, '').trim()); } catch (e) { return null; } };\nconst JEV_MODEL = CFG.jev_model || 'typesafe/jev-1.13';\nconst JEV_ON = CFG.jev_enabled !== false;\nconst shortName = d => String(d || '').replace(/\\s*\\([^)]*\\)\\s*/g, ' ').replace(/\\s+/g, ' ').trim();\nconst productLine = d => { const s = shortName(d); const p = String(CFG.product_prefix || '').trim(); return p && !s.toLocaleLowerCase(LOC).startsWith(p.toLocaleLowerCase(LOC)) ? p + ' ' + s : s; };\n\nconst rep = parseJson(geminiText($json));\nconst body = rep ? {model: JEV_MODEL, state: {task: 'AI animation of a real restaurant food photo for an Instagram Reel', comparison_report: rep}, questions: {\n  truthful: {type: 'noul', instructions: 'Based on the report, does the video truthfully show the same dish as the original photo throughout (no food invented, removed, morphed or duplicated)? Steam, light and camera motion are fine.', criteria: {true: 'Truthful animation of the same dish', false: 'The food changes or artifacts a customer would notice'}},\n  quality: {type: 'score', instructions: 'How usable is this clip as the opening of an advertising Reel, considering glitches, flicker, morphing and motion quality?', criteria: ['unusable', 'poor', 'acceptable', 'good']}}}\n : {model: JEV_MODEL, state: 'connectivity check', questions: {ok: {type: 'noul', instructions: 'Is this a connectivity check?', criteria: {true: 'yes', false: 'no'}}}};\nreturn [{json: {rep, body}}];\n"
+      },
+      "id": "cd864070-bbc1-44f1-9f49-a0bbcde53421",
+      "name": "Clip Report",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3740,
+        700
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "2dbd2d25-cbdf-4682-a0a9-4f64e52b46fd",
+              "leftValue": "={{ $('Config').first().json.jev_enabled }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "54fa1310-1b6a-4ea1-a7aa-049c1bc0edf5",
+      "name": "Jev On? (Clip)",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        3960,
+        700
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/alpha/decisions",
+        "options": {
+          "timeout": 30000
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.body }}"
+      },
+      "id": "8e0e301f-d2cb-4baf-be9a-96859871da9e",
+      "name": "Jev: Judge Clip",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        4180,
+        600
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 3000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const CFG = $('Config').first().json;\nconst LOC = CFG.locale || 'en-US';\nconst LANG = CFG.language || 'English';\nconst ROOT = CFG.data_dir;\nconst fs = require('fs');\nconst RL = ROOT + '/state/reels_ledger.json';\nconst readRL = () => { try { return JSON.parse(fs.readFileSync(RL, 'utf8')); } catch (e) { return {version: 1, entries: []}; } };\nconst saveRL = l => { const t = RL + '.tmp'; fs.writeFileSync(t, JSON.stringify(l, null, 2)); fs.renameSync(t, RL); };\nconst geminiText = j => { try { return (j.candidates[0].content.parts || []).filter(p => !p.thought).map(p => p.text || '').join(''); } catch (e) { return ''; } };\nconst parseJson = t => { try { return JSON.parse(String(t || '').replace(/```(?:json)?/gi, '').trim()); } catch (e) { return null; } };\nconst JEV_MODEL = CFG.jev_model || 'typesafe/jev-1.13';\nconst JEV_ON = CFG.jev_enabled !== false;\nconst shortName = d => String(d || '').replace(/\\s*\\([^)]*\\)\\s*/g, ' ').replace(/\\s+/g, ' ').trim();\nconst productLine = d => { const s = shortName(d); const p = String(CFG.product_prefix || '').trim(); return p && !s.toLocaleLowerCase(LOC).startsWith(p.toLocaleLowerCase(LOC)) ? p + ' ' + s : s; };\n\nconst k = $('Script Decision').first().json;\nconst rep = $('Clip Report').first().json.rep; const a = $json.answers;\nconst why = []; let truthful = null, quality = null, status;\nif (!rep) { status = 'not reviewed'; }\nelse {\n  if (rep.people_hands_text === true) why.push('people/hands/text were added');\n  if (a && a.truthful && a.quality) { status = 'jev'; truthful = a.truthful.noul; quality = a.quality.score;\n    if (truthful < 0.5) why.push('the dish changed (' + (rep.dish_changes || '') + ')');\n    if (quality < 1.5) why.push('visual defects'); }\n  else { status = JEV_ON ? 'gemini (Jev unreachable)' : 'gemini (Jev disabled)';\n    if (rep.same_dish_throughout === false) why.push('the dish changed');\n    if (rep.morphing_or_melting === true || rep.flicker_or_glitches === true) why.push('visual defects'); }\n}\nconst accept = !!rep && why.length === 0;\n// Rejected -> the opener falls back to a slow zoom on the real frame\nreturn [{json: {...k, heroVideo: accept ? $('Save Veo Clip').first().json.heroVideo : null, veo: {status, accept, truthful, quality, why: why.join(', ') || (rep ? '' : 'no report'), notes: rep ? rep.notes || rep.dish_changes || '' : ''}}}];\n"
+      },
+      "id": "1a3c9e03-1317-4f56-a080-d35f99a6b456",
+      "name": "Clip Decision",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4400,
+        700
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const CFG = $('Config').first().json;\nconst LOC = CFG.locale || 'en-US';\nconst LANG = CFG.language || 'English';\nconst ROOT = CFG.data_dir;\nconst fs = require('fs');\nconst RL = ROOT + '/state/reels_ledger.json';\nconst readRL = () => { try { return JSON.parse(fs.readFileSync(RL, 'utf8')); } catch (e) { return {version: 1, entries: []}; } };\nconst saveRL = l => { const t = RL + '.tmp'; fs.writeFileSync(t, JSON.stringify(l, null, 2)); fs.renameSync(t, RL); };\nconst geminiText = j => { try { return (j.candidates[0].content.parts || []).filter(p => !p.thought).map(p => p.text || '').join(''); } catch (e) { return ''; } };\nconst parseJson = t => { try { return JSON.parse(String(t || '').replace(/```(?:json)?/gi, '').trim()); } catch (e) { return null; } };\nconst JEV_MODEL = CFG.jev_model || 'typesafe/jev-1.13';\nconst JEV_ON = CFG.jev_enabled !== false;\nconst shortName = d => String(d || '').replace(/\\s*\\([^)]*\\)\\s*/g, ' ').replace(/\\s+/g, ' ').trim();\nconst productLine = d => { const s = shortName(d); const p = String(CFG.product_prefix || '').trim(); return p && !s.toLocaleLowerCase(LOC).startsWith(p.toLocaleLowerCase(LOC)) ? p + ' ' + s : s; };\n\n// Music: least-used track from the approved library. The montage runs in the background (setsid)\n// because it takes minutes; the next nodes poll for its done.json.\nconst {execFile} = require('child_process');\nconst k = $json; const sc = k.script;\nconst dir = ROOT + '/work/' + k.id; fs.mkdirSync(dir, {recursive: true});\nfs.mkdirSync(ROOT + '/out', {recursive: true});\nconst libPath = ROOT + '/music/library.json'; let lib = {tracks: {}}; try { lib = JSON.parse(fs.readFileSync(libPath, 'utf8')); } catch (e) {}\nconst tracks = Object.entries(lib.tracks || {}).filter(([f, t]) => !t.disabled && fs.existsSync(ROOT + '/music/' + f))\n  .sort((a, b) => (a[1].uses || 0) - (b[1].uses || 0) || String(a[1].lastUsed || '').localeCompare(String(b[1].lastUsed || '')));\nconst music = tracks.length ? tracks[0][0] : null;\nif (music) { lib.tracks[music].uses = (lib.tracks[music].uses || 0) + 1; lib.tracks[music].lastUsed = new Date().toISOString(); fs.writeFileSync(libPath, JSON.stringify(lib, null, 2)); }\nconst motions = [{z0: 0, z1: 0.08, dy0: 0, dy1: 0}, {z0: 0.09, z1: 0.01, dy0: 0, dy1: 0}, {z0: 0.08, z1: 0.08, dy0: 0.03, dy1: -0.03}, {z0: 0.01, z1: 0.09, dy0: -0.01, dy1: 0.01}];\nconst shots = k.frames.map((f, i) => i === 0 && k.heroVideo\n  ? {kind: 'video', src: k.heroVideo, dur: 6.0, slogan: sc.lines[0] || '', dish: productLine(f.dish), audio: true}\n  : {kind: 'still', src: f.path, dur: i === 0 ? 4.0 : 2.5, slogan: sc.lines[i] || '', dish: productLine(f.dish), motion: i === 0 ? {z0: 0, z1: 0.1, dy0: 0.01, dy1: -0.01} : motions[(i - 1) % motions.length]});\nconst A = ROOT + '/assets';\nconst spec = {id: k.id, workDir: dir, out: ROOT + '/out/' + k.id + '.mp4', cover: ROOT + '/out/' + k.id + '_cover.jpg', done: dir + '/done.json', shots,\n  end: {bg: k.frames[0].path, cta1: sc.cta1, cta2: sc.cta2, dur: 3.2}, music: music ? ROOT + '/music/' + music : null,\n  transitions: ['fade', 'smoothleft', 'smoothleft', 'fade', 'fade'].slice(0, shots.length), xdur: 0.3,\n  ffmpeg: CFG.ffmpeg_path || 'ffmpeg', font: CFG.font_path || A + '/font.ttf', sloganColor: CFG.slogan_color || '#FFFFFF', accentColor: CFG.accent_color || '#E63946',\n  logo: A + '/logo.png', endBox: A + '/end_box.png'};\ntry { fs.unlinkSync(spec.done); } catch (e) {}\nfs.writeFileSync(dir + '/spec.json', JSON.stringify(spec, null, 1));\nawait new Promise((ok, no) => execFile('sh', ['-c', 'setsid nohup node \"$0\" \"$1\" > \"$2\" 2>&1 &', ROOT + '/scripts/render_reel.js', dir + '/spec.json', dir + '/render.out'], {timeout: 20000}, e => e ? no(e) : ok()));\nconst rl = readRL(); const e = rl.entries.find(x => x.id === k.id);\nif (e) { e.status = 'rendering'; e.script = sc; e.music = music; e.veo = k.veo; e.heroDish = k.frames[0].dish; saveRL(rl); }\nreturn [{json: {...k, music, done: spec.done, out: spec.out, cover: spec.cover}}];\n"
+      },
+      "id": "b1ed50c2-9369-46d8-8673-5426bdb98807",
+      "name": "Start Montage",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        1500
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 170,
+        "unit": "seconds"
+      },
+      "id": "c601fa28-0833-44e6-b9f7-8707100c5318",
+      "name": "Montage Wait 1",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        660,
+        1500
+      ],
+      "webhookId": "1ab14258-4a65-48a0-8f84-3d7348d24d84"
+    },
+    {
+      "parameters": {
+        "jsCode": "const fs = require('fs');\nconst k = $('Start Montage').first().json;\nlet d = null; try { d = JSON.parse(fs.readFileSync(k.done, 'utf8')); } catch (e) {}\nreturn [{json: {ready: !!d, result: d}}];\n"
+      },
+      "id": "f35fedf8-8b6b-47f4-83de-daf31bdd67ae",
+      "name": "Montage Status 1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        1500
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "4fd8048b-3fcf-49b1-931a-110a1a724899",
+              "leftValue": "={{ $json.ready }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "288ad39d-a1a0-4cb5-9842-7c44bdc1d2d7",
+      "name": "Montage Done 1?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        1500
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 60,
+        "unit": "seconds"
+      },
+      "id": "46ff8762-a484-4c91-8955-e5e6dd8f654f",
+      "name": "Montage Wait 2",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1320,
+        1660
+      ],
+      "webhookId": "46254536-c388-4dbc-b02c-d1cf6cfb1032"
+    },
+    {
+      "parameters": {
+        "jsCode": "const fs = require('fs');\nconst k = $('Start Montage').first().json;\nlet d = null; try { d = JSON.parse(fs.readFileSync(k.done, 'utf8')); } catch (e) {}\nreturn [{json: {ready: !!d, result: d}}];\n"
+      },
+      "id": "a370e3b4-202c-49cc-a024-6caedf4fabe1",
+      "name": "Montage Status 2",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1540,
+        1660
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "5257e1e9-0712-4fbc-9483-79c9ff29c5d1",
+              "leftValue": "={{ $json.ready }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a7bb17ec-7b52-4625-8aad-1d8458a60729",
+      "name": "Montage Done 2?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1760,
+        1660
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 120,
+        "unit": "seconds"
+      },
+      "id": "902455ba-086e-4304-ad14-973bd70d037c",
+      "name": "Montage Wait 3",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1980,
+        1820
+      ],
+      "webhookId": "e94627a7-9a93-4c4c-a3b2-8ebd5e8d3b9a"
+    },
+    {
+      "parameters": {
+        "jsCode": "const fs = require('fs');\nconst k = $('Start Montage').first().json;\nlet d = null; try { d = JSON.parse(fs.readFileSync(k.done, 'utf8')); } catch (e) {}\nreturn [{json: {ready: !!d, result: d}}];\n"
+      },
+      "id": "5c7ce24c-c666-42a0-b9af-0ea39cd02a70",
+      "name": "Montage Status 3",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2200,
+        1820
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "fca1947b-72fc-440f-a73d-ebae97edb23b",
+              "leftValue": "={{ $json.ready }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "0958888e-83a6-4f8c-b2ae-79f08ab54c4b",
+      "name": "Montage Done 3?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        2420,
+        1820
+      ]
+    },
+    {
+      "parameters": {
+        "errorMessage": "The reel montage did not finish in ~6 minutes; check <data_dir>/work/<reel id>/render.log"
+      },
+      "id": "aa6dc4dd-0e23-4c18-9af4-12cf54f637de",
+      "name": "Montage Timeout",
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        2640,
+        1820
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const CFG = $('Config').first().json;\nconst LOC = CFG.locale || 'en-US';\nconst LANG = CFG.language || 'English';\nconst ROOT = CFG.data_dir;\nconst fs = require('fs');\nconst RL = ROOT + '/state/reels_ledger.json';\nconst readRL = () => { try { return JSON.parse(fs.readFileSync(RL, 'utf8')); } catch (e) { return {version: 1, entries: []}; } };\nconst saveRL = l => { const t = RL + '.tmp'; fs.writeFileSync(t, JSON.stringify(l, null, 2)); fs.renameSync(t, RL); };\nconst geminiText = j => { try { return (j.candidates[0].content.parts || []).filter(p => !p.thought).map(p => p.text || '').join(''); } catch (e) { return ''; } };\nconst parseJson = t => { try { return JSON.parse(String(t || '').replace(/```(?:json)?/gi, '').trim()); } catch (e) { return null; } };\nconst JEV_MODEL = CFG.jev_model || 'typesafe/jev-1.13';\nconst JEV_ON = CFG.jev_enabled !== false;\nconst shortName = d => String(d || '').replace(/\\s*\\([^)]*\\)\\s*/g, ' ').replace(/\\s+/g, ' ').trim();\nconst productLine = d => { const s = shortName(d); const p = String(CFG.product_prefix || '').trim(); return p && !s.toLocaleLowerCase(LOC).startsWith(p.toLocaleLowerCase(LOC)) ? p + ' ' + s : s; };\n\nconst k = $('Start Montage').first().json;\nconst d = JSON.parse(fs.readFileSync(k.done, 'utf8'));\nif (!d.ok) throw new Error('Reel montage failed: ' + String(d.error || '').slice(-300));\nif (d.bytes > 95 * 1024 * 1024) throw new Error('Reel file is too large');\n// Hashtags: brand + opening dish + city + rotating discovery tag (+ fallback), max 5\nconst lower = x => String(x || '').toLocaleLowerCase(LOC);\nconst FOLD = {'ı': 'i', 'ł': 'l', 'ø': 'o', 'æ': 'ae', 'œ': 'oe', 'ß': 'ss', 'đ': 'd', 'ð': 'd', 'þ': 'th'};\nconst slug = x => lower(x).normalize('NFKD').replace(/[̀-ͯ]/g, '').replace(/[ıłøæœßđðþ]/g, ch => FOLD[ch]).replace(/[^a-z0-9]+/g, '');\nconst hero = shortName(k.frames[0].dish);\nlet heroTag = slug(hero); if (heroTag.length > 20) { heroTag = slug(hero.split(/\\s+/).slice(-2).join(' ')); }\nconst rl = readRL();\nconst H = CFG.hashtags || {};\nconst discovery = H.discovery || [];\nconst spot = discovery.length ? discovery[rl.entries.filter(e => e.status === 'published').length % discovery.length] : '';\nconst tag = t => t ? '#' + String(t).replace(/^#/, '') : '';\nconst tags = []; for (const t of [tag(H.brand), tag(heroTag), tag(H.city), tag(spot), ...(H.fallback || []).map(tag)]) if (tags.length < 5 && t.length > 1 && !tags.some(x => lower(x) === lower(t))) tags.push(t);\nconst captionFull = k.script.caption + '\\n\\n' + tags.join(' ');\nconst f = k.out.split('/').pop(), cv = k.cover.split('/').pop();\nconst e = rl.entries.find(x => x.id === k.id); if (e) { e.status = 'ready'; e.video = f; e.duration = d.duration; e.bytes = d.bytes; saveRL(rl); }\nreturn [{json: {id: k.id, captionFull, duration: d.duration, bytes: d.bytes, videoPath: k.out,\n  videoUrl: CFG.public_media_url + encodeURIComponent(f), coverUrl: CFG.public_media_url + encodeURIComponent(cv)}}];\n"
+      },
+      "id": "280dd569-690d-4eb4-a4ad-fd60846c1b53",
+      "name": "Prepare Reel",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2640,
+        1500
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "4577afc1-185b-41c6-8c59-6a7059a6f55b",
+              "leftValue": "={{ $('Config').first().json.dry_run }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "9214917a-4dfa-4af4-bc45-76512b5f6eea",
+      "name": "Dry Run?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        2860,
+        1500
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const CFG = $('Config').first().json;\nconst LOC = CFG.locale || 'en-US';\nconst LANG = CFG.language || 'English';\nconst ROOT = CFG.data_dir;\nconst fs = require('fs');\nconst RL = ROOT + '/state/reels_ledger.json';\nconst readRL = () => { try { return JSON.parse(fs.readFileSync(RL, 'utf8')); } catch (e) { return {version: 1, entries: []}; } };\nconst saveRL = l => { const t = RL + '.tmp'; fs.writeFileSync(t, JSON.stringify(l, null, 2)); fs.renameSync(t, RL); };\nconst geminiText = j => { try { return (j.candidates[0].content.parts || []).filter(p => !p.thought).map(p => p.text || '').join(''); } catch (e) { return ''; } };\nconst parseJson = t => { try { return JSON.parse(String(t || '').replace(/```(?:json)?/gi, '').trim()); } catch (e) { return null; } };\nconst JEV_MODEL = CFG.jev_model || 'typesafe/jev-1.13';\nconst JEV_ON = CFG.jev_enabled !== false;\nconst shortName = d => String(d || '').replace(/\\s*\\([^)]*\\)\\s*/g, ' ').replace(/\\s+/g, ' ').trim();\nconst productLine = d => { const s = shortName(d); const p = String(CFG.product_prefix || '').trim(); return p && !s.toLocaleLowerCase(LOC).startsWith(p.toLocaleLowerCase(LOC)) ? p + ' ' + s : s; };\n\n// Dry run: the reel was rendered but nothing goes to Instagram\nconst p = $('Prepare Reel').first().json;\nconst rl = readRL(); const e = rl.entries.find(x => x.id === p.id);\nif (e) { e.status = 'dry_run'; e.dryRunAt = new Date().toISOString(); saveRL(rl); }\nreturn [{json: {dryRun: true, id: p.id}}];\n"
+      },
+      "id": "ffdf66cd-cfbe-47fc-9b5f-d4a9e0e4153c",
+      "name": "Dry Run: Mark Reel",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3080,
+        1340
+      ]
+    },
+    {
+      "parameters": {
+        "graphApiVersion": "={{ $('Config').first().json.graph_api_version }}",
+        "node": "={{ $('Config').first().json.ig_user_id }}",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "media_type",
+                "value": "REELS"
+              },
+              {
+                "name": "upload_type",
+                "value": "resumable"
+              },
+              {
+                "name": "caption",
+                "value": "={{ $json.captionFull }}"
+              },
+              {
+                "name": "share_to_feed",
+                "value": "true"
+              },
+              {
+                "name": "cover_url",
+                "value": "={{ $json.coverUrl }}"
+              }
+            ]
+          }
+        },
+        "httpRequestMethod": "POST",
+        "edge": "media"
+      },
+      "id": "9f5c2f5f-c2c6-4b4d-8f7d-de683a2bd61a",
+      "name": "Create Reel Container",
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        440,
+        2300
+      ],
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Meta could not fetch the video from the n8n webhook (HEAD -> 404, no Content-Length/Range: error 2207077),\n// so the container is created with upload_type=resumable and the bytes are POSTed to rupload.facebook.com.\nconst fs = require('fs');\nconst p = $('Prepare Reel').first().json;\nif (!$json.uri || !$json.id) throw new Error('The reel container did not return an upload URI: ' + JSON.stringify($json).slice(0, 200));\nconst buf = fs.readFileSync(p.videoPath);\nconst bin = await this.helpers.prepareBinaryData(buf, p.id + '.mp4', 'video/mp4');\nreturn [{json: {uri: $json.uri, container: $json.id, bytes: buf.length}, binary: {video: bin}}];\n"
+      },
+      "id": "2c1eee33-c968-4502-8a5a-7a2097b61777",
+      "name": "Load Reel Video",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        2300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.uri }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "facebookGraphApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "offset",
+              "value": "0"
+            },
+            {
+              "name": "file_size",
+              "value": "={{ $json.bytes }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "binaryData",
+        "inputDataFieldName": "video",
+        "options": {
+          "timeout": 300000
+        }
+      },
+      "id": "fac583e1-1b2e-425d-bcec-bfade506d4aa",
+      "name": "Upload Reel (resumable)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        880,
+        2300
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "amount": 45,
+        "unit": "seconds"
+      },
+      "id": "8056dc0c-5fa8-491d-90d3-e284c69892bc",
+      "name": "Reel Processing Wait 1",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1100,
+        2300
+      ],
+      "webhookId": "0806d1e0-467f-41ae-87e6-702a33c11977"
+    },
+    {
+      "parameters": {
+        "graphApiVersion": "={{ $('Config').first().json.graph_api_version }}",
+        "node": "={{ $('Create Reel Container').first().json.id }}",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "fields",
+                "value": "status_code,status"
+              }
+            ]
+          }
+        }
+      },
+      "id": "19889826-0491-4eeb-b3e5-e56ffa56069b",
+      "name": "Reel Status 1",
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        1320,
+        2300
+      ],
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// If Meta failed to process the video, stop right away (the error workflow sends a Telegram alert)\nif ($json.status_code === 'ERROR' || $json.status_code === 'EXPIRED') throw new Error('Meta could not process the reel video: ' + ($json.status || $json.status_code));\nreturn $input.all();\n"
+      },
+      "id": "bba7b34f-d637-450c-ada3-6b442bc58397",
+      "name": "Reel Status Check 1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1540,
+        2300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "28508b33-9d24-47e6-b031-1a8d27becb07",
+              "leftValue": "={{ $json.status_code }}",
+              "rightValue": "FINISHED",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "bb37fcdd-0a3d-4834-8e64-932e247b7519",
+      "name": "Reel Ready 1?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1760,
+        2300
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 45,
+        "unit": "seconds"
+      },
+      "id": "a13241a3-66e6-4dc0-be12-c82328a5b560",
+      "name": "Reel Processing Wait 2",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1980,
+        2460
+      ],
+      "webhookId": "e52e9f18-b437-4e25-b851-59145b83099c"
+    },
+    {
+      "parameters": {
+        "graphApiVersion": "={{ $('Config').first().json.graph_api_version }}",
+        "node": "={{ $('Create Reel Container').first().json.id }}",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "fields",
+                "value": "status_code,status"
+              }
+            ]
+          }
+        }
+      },
+      "id": "ec7c867c-29f6-465a-ab9b-150bc8368b01",
+      "name": "Reel Status 2",
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        2200,
+        2460
+      ],
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// If Meta failed to process the video, stop right away (the error workflow sends a Telegram alert)\nif ($json.status_code === 'ERROR' || $json.status_code === 'EXPIRED') throw new Error('Meta could not process the reel video: ' + ($json.status || $json.status_code));\nreturn $input.all();\n"
+      },
+      "id": "bf9f100e-b58d-44dd-ba8f-37643c771478",
+      "name": "Reel Status Check 2",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2420,
+        2460
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "5e9d8827-a75f-49f3-a672-53ff69432ce5",
+              "leftValue": "={{ $json.status_code }}",
+              "rightValue": "FINISHED",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "f30a0c6b-7213-46b7-b456-dcc522024191",
+      "name": "Reel Ready 2?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        2640,
+        2460
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 60,
+        "unit": "seconds"
+      },
+      "id": "108e30cb-8204-4b4e-a770-a7aeb6d31d2b",
+      "name": "Reel Processing Wait 3",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2860,
+        2620
+      ],
+      "webhookId": "6895331a-3bf1-4a77-9db7-7ef83b2abe36"
+    },
+    {
+      "parameters": {
+        "graphApiVersion": "={{ $('Config').first().json.graph_api_version }}",
+        "node": "={{ $('Create Reel Container').first().json.id }}",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "fields",
+                "value": "status_code,status"
+              }
+            ]
+          }
+        }
+      },
+      "id": "80dcf957-df3a-4f21-a04e-261f8101ebef",
+      "name": "Reel Status 3",
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        3080,
+        2620
+      ],
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// If Meta failed to process the video, stop right away (the error workflow sends a Telegram alert)\nif ($json.status_code === 'ERROR' || $json.status_code === 'EXPIRED') throw new Error('Meta could not process the reel video: ' + ($json.status || $json.status_code));\nreturn $input.all();\n"
+      },
+      "id": "6ac58bfb-a9ec-4e13-a59b-2f76bd8517cf",
+      "name": "Reel Status Check 3",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3300,
+        2620
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "b8252403-7b51-48d6-bcc6-7cb9cb2ebc22",
+              "leftValue": "={{ $json.status_code }}",
+              "rightValue": "FINISHED",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "e0936032-c935-42d7-918b-80bb7922591b",
+      "name": "Reel Ready 3?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        3520,
+        2620
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 90,
+        "unit": "seconds"
+      },
+      "id": "01aa2227-d8ba-454c-91bf-407f7c46c167",
+      "name": "Reel Processing Wait 4",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        3740,
+        2780
+      ],
+      "webhookId": "30bb414e-6a8c-4dac-9241-5d57226c2dbc"
+    },
+    {
+      "parameters": {
+        "graphApiVersion": "={{ $('Config').first().json.graph_api_version }}",
+        "node": "={{ $('Create Reel Container').first().json.id }}",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "fields",
+                "value": "status_code,status"
+              }
+            ]
+          }
+        }
+      },
+      "id": "9d6cd890-6ed7-40a5-805c-0dcd7b2ec360",
+      "name": "Reel Status 4",
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        3960,
+        2780
+      ],
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// If Meta failed to process the video, stop right away (the error workflow sends a Telegram alert)\nif ($json.status_code === 'ERROR' || $json.status_code === 'EXPIRED') throw new Error('Meta could not process the reel video: ' + ($json.status || $json.status_code));\nreturn $input.all();\n"
+      },
+      "id": "41aba995-8ff8-4637-9d8f-a1b9f6761dc7",
+      "name": "Reel Status Check 4",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4180,
+        2780
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "910c5762-1e8f-4993-9054-af3a7e2839c9",
+              "leftValue": "={{ $json.status_code }}",
+              "rightValue": "FINISHED",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "2697b612-76fc-484e-bda0-bae1157701b5",
+      "name": "Reel Ready 4?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        4400,
+        2780
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 120,
+        "unit": "seconds"
+      },
+      "id": "2519aebe-a991-4f5a-9e44-6e204fdd47f2",
+      "name": "Reel Processing Wait 5",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        4620,
+        2940
+      ],
+      "webhookId": "65e69ed0-0ccf-4395-90cd-3207c1006ac1"
+    },
+    {
+      "parameters": {
+        "graphApiVersion": "={{ $('Config').first().json.graph_api_version }}",
+        "node": "={{ $('Create Reel Container').first().json.id }}",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "fields",
+                "value": "status_code,status"
+              }
+            ]
+          }
+        }
+      },
+      "id": "8515d23d-6533-437c-a548-e5aeb87e2649",
+      "name": "Reel Status 5",
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        4840,
+        2940
+      ],
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// If Meta failed to process the video, stop right away (the error workflow sends a Telegram alert)\nif ($json.status_code === 'ERROR' || $json.status_code === 'EXPIRED') throw new Error('Meta could not process the reel video: ' + ($json.status || $json.status_code));\nreturn $input.all();\n"
+      },
+      "id": "78ac0ed1-adab-48d7-8121-65bb4cb98358",
+      "name": "Reel Status Check 5",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5060,
+        2940
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "2fbed063-c543-463c-823f-86248b43fb11",
+              "leftValue": "={{ $json.status_code }}",
+              "rightValue": "FINISHED",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "7481725a-2753-40b9-8fe8-a65a03298122",
+      "name": "Reel Ready 5?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        5280,
+        2940
+      ]
+    },
+    {
+      "parameters": {
+        "errorMessage": "={{ 'Meta could not process the reel video: ' + ($json.status_code || '') + ' ' + ($json.status || '') }}"
+      },
+      "id": "cbf7c3ee-d8fa-4beb-8da2-470b993c87ee",
+      "name": "Reel Processing Failed",
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        5500,
+        3100
+      ]
+    },
+    {
+      "parameters": {
+        "graphApiVersion": "={{ $('Config').first().json.graph_api_version }}",
+        "node": "={{ $('Config').first().json.ig_user_id }}",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "creation_id",
+                "value": "={{ $('Create Reel Container').first().json.id }}"
+              }
+            ]
+          }
+        },
+        "httpRequestMethod": "POST",
+        "edge": "media_publish"
+      },
+      "id": "01079a74-a7b6-43d5-8e86-a5fa109f6587",
+      "name": "Publish Reel",
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        5720,
+        2300
+      ],
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const CFG = $('Config').first().json;\nconst LOC = CFG.locale || 'en-US';\nconst LANG = CFG.language || 'English';\nconst ROOT = CFG.data_dir;\nconst fs = require('fs');\nconst RL = ROOT + '/state/reels_ledger.json';\nconst readRL = () => { try { return JSON.parse(fs.readFileSync(RL, 'utf8')); } catch (e) { return {version: 1, entries: []}; } };\nconst saveRL = l => { const t = RL + '.tmp'; fs.writeFileSync(t, JSON.stringify(l, null, 2)); fs.renameSync(t, RL); };\nconst geminiText = j => { try { return (j.candidates[0].content.parts || []).filter(p => !p.thought).map(p => p.text || '').join(''); } catch (e) { return ''; } };\nconst parseJson = t => { try { return JSON.parse(String(t || '').replace(/```(?:json)?/gi, '').trim()); } catch (e) { return null; } };\nconst JEV_MODEL = CFG.jev_model || 'typesafe/jev-1.13';\nconst JEV_ON = CFG.jev_enabled !== false;\nconst shortName = d => String(d || '').replace(/\\s*\\([^)]*\\)\\s*/g, ' ').replace(/\\s+/g, ' ').trim();\nconst productLine = d => { const s = shortName(d); const p = String(CFG.product_prefix || '').trim(); return p && !s.toLocaleLowerCase(LOC).startsWith(p.toLocaleLowerCase(LOC)) ? p + ' ' + s : s; };\n\nconst p = $('Prepare Reel').first().json;\nconst rl = readRL(); const e = rl.entries.find(x => x.id === p.id);\nif (!e) throw new Error('Reel ledger entry not found: ' + p.id);\ne.status = 'published'; e.publishedAt = new Date().toISOString(); e.mediaId = String($json.id || '');\nif (!e.mediaId) throw new Error('Meta did not return a media id');\nsaveRL(rl);\nreturn [{json: {id: p.id, mediaId: e.mediaId}}];\n"
+      },
+      "id": "ff6809bf-3d21-4b0c-8d13-8ba8f4c0a2a2",
+      "name": "Save Reel",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5940,
+        2300
+      ]
+    },
+    {
+      "parameters": {
+        "graphApiVersion": "={{ $('Config').first().json.graph_api_version }}",
+        "node": "={{ $('Config').first().json.ig_user_id }}",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "media_type",
+                "value": "STORIES"
+              },
+              {
+                "name": "upload_type",
+                "value": "resumable"
+              }
+            ]
+          }
+        },
+        "httpRequestMethod": "POST",
+        "edge": "media"
+      },
+      "id": "5842396f-85cb-4042-b73e-a69a3c432613",
+      "name": "Create Story Container",
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        440,
+        3400
+      ],
+      "retryOnFail": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// The same video is also shared as a story. The API has no \"share reel to story\" sticker, so the file itself is uploaded.\n// Everything on this branch continues on error: a failed story never breaks the published reel.\nconst fs = require('fs');\nconst p = $('Prepare Reel').first().json;\nif (!$json.uri || !$json.id) return [{json: {skip: true, error: 'could not open a story container: ' + JSON.stringify($json.error || $json).slice(0, 200)}}];\nconst buf = fs.readFileSync(p.videoPath);\nconst bin = await this.helpers.prepareBinaryData(buf, p.id + '_story.mp4', 'video/mp4');\nreturn [{json: {uri: $json.uri, container: $json.id, bytes: buf.length}, binary: {video: bin}}];\n"
+      },
+      "id": "b14d961c-409e-45ef-a961-c225ec267e99",
+      "name": "Load Story Video",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        3400
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.uri }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "facebookGraphApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "offset",
+              "value": "0"
+            },
+            {
+              "name": "file_size",
+              "value": "={{ $json.bytes }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "binaryData",
+        "inputDataFieldName": "video",
+        "options": {
+          "timeout": 300000
+        }
+      },
+      "id": "f8b28865-9269-4541-b247-17069d8737d0",
+      "name": "Upload Story (resumable)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        880,
+        3400
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "amount": 20,
+        "unit": "seconds"
+      },
+      "id": "917bc74c-2646-469c-ab74-c1708d0a38e7",
+      "name": "Story Processing Wait 1",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1100,
+        3400
+      ],
+      "webhookId": "ddac59e9-4460-423e-8a4f-edb7d2dd9e81"
+    },
+    {
+      "parameters": {
+        "graphApiVersion": "={{ $('Config').first().json.graph_api_version }}",
+        "node": "={{ $('Create Story Container').first().json.id }}",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "fields",
+                "value": "status_code,status"
+              }
+            ]
+          }
+        }
+      },
+      "id": "c665626f-4368-4ac2-8822-538d3829e328",
+      "name": "Story Status 1",
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        1320,
+        3400
+      ],
+      "retryOnFail": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "3dcd8edc-2581-4bde-ada7-e80fc9318bd5",
+              "leftValue": "={{ $json.status_code }}",
+              "rightValue": "FINISHED",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "3c74bb6d-9918-4ea1-9103-b40f51296509",
+      "name": "Story Ready 1?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1540,
+        3400
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 30,
+        "unit": "seconds"
+      },
+      "id": "284da134-5385-463e-bdc2-04dd8e422fe6",
+      "name": "Story Processing Wait 2",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1760,
+        3560
+      ],
+      "webhookId": "25111008-f998-41ce-8874-a679f596783b"
+    },
+    {
+      "parameters": {
+        "graphApiVersion": "={{ $('Config').first().json.graph_api_version }}",
+        "node": "={{ $('Create Story Container').first().json.id }}",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "fields",
+                "value": "status_code,status"
+              }
+            ]
+          }
+        }
+      },
+      "id": "512b9123-c612-4779-ad4f-6dda540ea174",
+      "name": "Story Status 2",
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        1980,
+        3560
+      ],
+      "retryOnFail": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "7975db96-3a53-4122-8904-711bd16aa435",
+              "leftValue": "={{ $json.status_code }}",
+              "rightValue": "FINISHED",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "f3fa6b7c-3916-43ad-ad1b-6db2a1aa24f0",
+      "name": "Story Ready 2?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        2200,
+        3560
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 60,
+        "unit": "seconds"
+      },
+      "id": "1a0548f8-acb9-4254-b236-40949a899f83",
+      "name": "Story Processing Wait 3",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2420,
+        3720
+      ],
+      "webhookId": "1d6feba7-9b6e-4fd7-99b3-8c240d7b88e0"
+    },
+    {
+      "parameters": {
+        "graphApiVersion": "={{ $('Config').first().json.graph_api_version }}",
+        "node": "={{ $('Create Story Container').first().json.id }}",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "fields",
+                "value": "status_code,status"
+              }
+            ]
+          }
+        }
+      },
+      "id": "cb3bbec3-b280-4ad3-abfb-e793d5731066",
+      "name": "Story Status 3",
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        2640,
+        3720
+      ],
+      "retryOnFail": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "ba1d0afb-f297-49a9-9b36-2ddc52080195",
+              "leftValue": "={{ $json.status_code }}",
+              "rightValue": "FINISHED",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c890d49a-f1b7-45d8-ac7b-53994137f934",
+      "name": "Story Ready 3?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        2860,
+        3720
+      ]
+    },
+    {
+      "parameters": {
+        "graphApiVersion": "={{ $('Config').first().json.graph_api_version }}",
+        "node": "={{ $('Config').first().json.ig_user_id }}",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "creation_id",
+                "value": "={{ $('Create Story Container').first().json.id }}"
+              }
+            ]
+          }
+        },
+        "httpRequestMethod": "POST",
+        "edge": "media_publish"
+      },
+      "id": "01934214-8fc3-4733-b24d-49d0d45f95bc",
+      "name": "Publish Story",
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        3080,
+        3400
+      ],
+      "retryOnFail": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const CFG = $('Config').first().json;\nconst LOC = CFG.locale || 'en-US';\nconst LANG = CFG.language || 'English';\nconst ROOT = CFG.data_dir;\nconst fs = require('fs');\nconst RL = ROOT + '/state/reels_ledger.json';\nconst readRL = () => { try { return JSON.parse(fs.readFileSync(RL, 'utf8')); } catch (e) { return {version: 1, entries: []}; } };\nconst saveRL = l => { const t = RL + '.tmp'; fs.writeFileSync(t, JSON.stringify(l, null, 2)); fs.renameSync(t, RL); };\nconst geminiText = j => { try { return (j.candidates[0].content.parts || []).filter(p => !p.thought).map(p => p.text || '').join(''); } catch (e) { return ''; } };\nconst parseJson = t => { try { return JSON.parse(String(t || '').replace(/```(?:json)?/gi, '').trim()); } catch (e) { return null; } };\nconst JEV_MODEL = CFG.jev_model || 'typesafe/jev-1.13';\nconst JEV_ON = CFG.jev_enabled !== false;\nconst shortName = d => String(d || '').replace(/\\s*\\([^)]*\\)\\s*/g, ' ').replace(/\\s+/g, ' ').trim();\nconst productLine = d => { const s = shortName(d); const p = String(CFG.product_prefix || '').trim(); return p && !s.toLocaleLowerCase(LOC).startsWith(p.toLocaleLowerCase(LOC)) ? p + ' ' + s : s; };\n\n// Story outcome: media id if published, otherwise the reason (does not affect the reel)\nconst j = $json; let story;\nif (j.id && !j.status_code && !j.error) story = {ok: true, mediaId: String(j.id)};\nelse story = {ok: false, why: j.error ? JSON.stringify(j.error).slice(0, 200) : (j.status_code ? ('Meta status: ' + j.status_code + ' ' + (j.status || '')) : 'unknown')};\nconst y = $('Save Reel').first().json;\nconst rl = readRL(); const e = rl.entries.find(x => x.id === y.id);\nif (e) { e.story = story; saveRL(rl); }\nreturn [{json: {mediaId: y.mediaId, story}}];\n"
+      },
+      "id": "a698200b-6aa0-4382-b4c3-9dea80ad8a6f",
+      "name": "Story Result",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3300,
+        3400
+      ]
+    },
+    {
+      "parameters": {
+        "graphApiVersion": "={{ $('Config').first().json.graph_api_version }}",
+        "node": "={{ $('Save Reel').first().json.mediaId }}",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "fields",
+                "value": "permalink,timestamp"
+              }
+            ]
+          }
+        }
+      },
+      "id": "48404440-2027-4b97-ae10-468a0cefce4d",
+      "name": "Get Reel Permalink",
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        3520,
+        3400
+      ],
+      "retryOnFail": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const CFG = $('Config').first().json;\nconst LOC = CFG.locale || 'en-US';\nconst LANG = CFG.language || 'English';\nconst ROOT = CFG.data_dir;\nconst fs = require('fs');\nconst RL = ROOT + '/state/reels_ledger.json';\nconst readRL = () => { try { return JSON.parse(fs.readFileSync(RL, 'utf8')); } catch (e) { return {version: 1, entries: []}; } };\nconst saveRL = l => { const t = RL + '.tmp'; fs.writeFileSync(t, JSON.stringify(l, null, 2)); fs.renameSync(t, RL); };\nconst geminiText = j => { try { return (j.candidates[0].content.parts || []).filter(p => !p.thought).map(p => p.text || '').join(''); } catch (e) { return ''; } };\nconst parseJson = t => { try { return JSON.parse(String(t || '').replace(/```(?:json)?/gi, '').trim()); } catch (e) { return null; } };\nconst JEV_MODEL = CFG.jev_model || 'typesafe/jev-1.13';\nconst JEV_ON = CFG.jev_enabled !== false;\nconst shortName = d => String(d || '').replace(/\\s*\\([^)]*\\)\\s*/g, ' ').replace(/\\s+/g, ' ').trim();\nconst productLine = d => { const s = shortName(d); const p = String(CFG.product_prefix || '').trim(); return p && !s.toLocaleLowerCase(LOC).startsWith(p.toLocaleLowerCase(LOC)) ? p + ' ' + s : s; };\n\n// HTML report; this node and the email node continue on error, so email problems never break publishing\nconst k = $('Start Montage').first().json; const p = $('Prepare Reel').first().json;\nconst dry = $('Dry Run: Mark Reel').isExecuted;\nconst y = $('Save Reel').isExecuted ? $('Save Reel').first().json : {mediaId: ''};\nconst link = dry ? '' : ($json.permalink || '');\nconst esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\"/g, '&quot;');\nconst ACCENT = CFG.accent_color || '#E63946';\nlet when; try { when = $now.setLocale(LOC).toLocaleString({dateStyle: 'long', timeStyle: 'short'}); } catch (e) { when = new Date().toISOString(); }\nconst sc = k.script; const pct = x => x == null ? '—' : Math.round(x * 100);\nconst shotRows = k.frames.map((f, i) => '<tr><td style=\"padding:4px 8px;border-top:1px solid #eee;font-size:13px;color:#666\">' + (i + 1) + '</td><td style=\"padding:4px 8px;border-top:1px solid #eee;font-size:13px\"><b>' + esc(sc.lines[i] || '—') + '</b></td><td style=\"padding:4px 8px;border-top:1px solid #eee;font-size:13px;color:' + esc(ACCENT) + '\">' + esc(f.dish) + '</td></tr>').join('');\nconst alt = (k.scriptRated || []).map(c => '<li style=\"font-size:12px;color:#555\">' + esc(c.lines.join(' · ')) + ' — score ' + pct(c.q) + (c.id === sc.id ? ' <b style=\"color:#1a7f37\">(chosen)</b>' : '') + (c.ok === false ? ' <span style=\"color:#b42318\">(dropped)</span>' : '') + '</li>').join('');\nconst veo = k.veo || {};\nconst st = $('Story Result').isExecuted ? $('Story Result').first().json.story : null;\nconst storyLine = !st ? '' : (st.ok ? 'The same video was also shared as a story.' : '<span style=\"color:#b42318\">Story could not be shared (' + esc(st.why) + ')</span>');\nconst veoLine = k.heroVideo ? ('Veo opener approved' + (veo.truthful != null ? ' — same dish ' + pct(veo.truthful) + '%, quality ' + (Math.round(veo.quality * 10) / 10) + '/3' : '')) :\n  ('<span style=\"color:#b42318\">Veo not used (' + esc(veo.why || veo.status || '') + '); the opener is a slow zoom on the real frame</span>');\nconst html = '<div style=\"font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;max-width:640px;margin:0 auto;color:#1d1d1f\">' +\n '<div style=\"background:' + esc(ACCENT) + ';color:#fff;padding:16px 20px;border-radius:10px 10px 0 0\"><div style=\"font-size:13px;opacity:.85\">' + esc(CFG.brand_name) + ' · Instagram · Weekly reel</div>' +\n '<div style=\"font-size:20px;font-weight:700;margin-top:4px\">' + (dry ? 'Weekly reel rendered (dry run)' : 'Weekly reel is live') + '</div><div style=\"font-size:13px;opacity:.85;margin-top:2px\">' + esc(when) + ' · ' + Number(p.duration).toFixed(1) + ' s</div></div>' +\n '<div style=\"border:1px solid #eee;border-top:0;padding:18px 20px;border-radius:0 0 10px 10px\">' +\n (dry ? '<p style=\"margin:0 0 14px;color:#8a6d00\">Dry run: nothing was sent to Instagram. <a href=\"' + esc(p.videoUrl) + '\">Watch the video file</a>. Set <b>dry_run</b> to false in the Config node to publish.</p>'\n   : (link ? '<p style=\"margin:0 0 14px\"><a href=\"' + esc(link) + '\" style=\"background:#1d1d1f;color:#fff;text-decoration:none;padding:9px 16px;border-radius:6px;font-size:14px;display:inline-block\">Watch on Instagram</a> &nbsp; <a href=\"' + esc(p.videoUrl) + '\" style=\"font-size:13px\">video file</a></p>'\n   : '<p style=\"color:#b42318\">Could not fetch the Instagram link (media ' + esc(y.mediaId) + ')</p>')) +\n '<img src=\"' + esc(p.coverUrl) + '\" alt=\"Cover\" style=\"width:100%;max-width:300px;border-radius:8px;display:block;margin:0 0 16px\">' +\n '<table style=\"border-collapse:collapse;width:100%;margin-bottom:12px\">' + shotRows + '</table>' +\n '<p style=\"font-size:14px;margin:6px 0\"><b>Closing card:</b> ' + esc(sc.cta1) + ' <span style=\"color:' + esc(ACCENT) + '\">' + esc(sc.cta2) + '</span></p>' +\n '<p style=\"font-size:14px;margin:6px 0;white-space:pre-wrap\"><b>Caption:</b> ' + esc(p.captionFull) + '</p>' +\n '<p style=\"font-size:13px;margin:6px 0\"><b>Opener:</b> ' + veoLine + '</p>' +\n (storyLine ? '<p style=\"font-size:13px;margin:6px 0\"><b>Story:</b> ' + storyLine + '</p>' : '') +\n '<p style=\"font-size:13px;margin:6px 0\"><b>Music:</b> ' + esc(k.music || 'none') + ' · <b>Opener picked by:</b> ' + esc(k.heroChoice.by) + (k.heroChoice.confidence != null ? ' (' + pct(k.heroChoice.confidence) + '%)' : '') + '</p>' +\n '<div style=\"font-size:14px;font-weight:700;margin:14px 0 4px\">Jev script review — chosen score ' + pct(sc.q) + '/100 (' + esc(k.scriptSource) + ')</div><ul style=\"margin:0;padding-left:18px\">' + alt + '</ul>' +\n '<p style=\"font-size:11px;color:#999;margin-top:18px\">Media ' + esc(y.mediaId || '—') + '</p></div></div>';\nconst binary = {};\ntry { binary.data = await this.helpers.prepareBinaryData(fs.readFileSync(k.cover), k.id + '_cover.jpg', 'image/jpeg'); } catch (e) {}\nreturn [{json: {subject: (dry ? '🧪 Dry run — ' : '🎬 ') + CFG.brand_name + ' weekly reel' + (dry ? ' rendered: ' : ' is live: ') + k.frames.map(f => f.dish).join(', '), html}, binary}];\n"
+      },
+      "id": "b67f2cf2-991b-4680-9c6c-e4d8870cc4a6",
+      "name": "Build Email",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3740,
+        3400
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $('Config').first().json.email_from }}",
+        "toEmail": "={{ $('Config').first().json.email_to }}",
+        "subject": "={{ $json.subject }}",
+        "html": "={{ $json.html }}",
+        "options": {
+          "attachments": "data",
+          "appendAttribution": false
+        }
+      },
+      "id": "ed7bd9a7-0731-44e9-b794-e644a885e454",
+      "name": "Send Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        3960,
+        3400
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "content": "## Instagram Autopilot: weekly AI reel\nEvery Saturday 12:30 (edit the trigger): 4 recent AI-reframed frames -> AI opener video -> montage with music -> Reel + the same video as a Story -> email.\n\n**Needs**: the posts & stories workflow running for a while (the reel reuses its approved AI reframes), ffmpeg (`ffmpeg_path`), `scripts/render_reel.js`, a font, optional `assets/logo.png` + `assets/end_box.png`, music in `music/` + `music/library.json`.\n\n**Setup**\n1. Credentials: Google Gemini (PaLM) API, Header Auth for OpenRouter (Jev), Facebook Graph API, SMTP.\n2. Fill in the **Config** node (same values as the other workflow).\n3. `dry_run: true` renders the reel and emails a link, nothing is posted.\n4. Error workflow -> **Instagram Autopilot - Error Notifier**, then `dry_run: false` and activate.\n\nCost in production: about $0.5 per week, mostly the 8 s 1080p Veo Lite opener.",
+        "height": 800,
+        "width": 460,
+        "color": 4
+      },
+      "id": "015af275-e80b-4d85-8210-ca54c53e944a",
+      "name": "Note: Setup",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -560,
+        -420
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### 1. Frames + script\nFrames from the last 8 days (then 30 days, then all) that were published with an approved AI reframe; 4 different dishes, 9:16 frames first. Jev picks the opening dish. Gemini 3.1 Pro writes 3 script options; rules first, then Jev scores each one with a \"weakest line\" language question (averaging missed a single broken line). Nothing passes -> safe fallback script.",
+        "height": 180,
+        "width": 2200
+      },
+      "id": "f9d1006a-39b0-4975-b54e-78ad785718e0",
+      "name": "Note: Script",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        420,
+        -300
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### 2. AI opener (Veo 3.1 Lite, image-to-video, 8 s)\nStart -> poll 3 times -> download -> Gemini Flash reviews the clip against the source frame -> Jev decides (same dish >= 0.5, quality >= 1.5/3). Rejected / failed / timed out -> the opener is a slow zoom on the real frame.",
+        "height": 160,
+        "width": 2400
+      },
+      "id": "2e6e0adb-7c93-4b4c-a7be-ccbbde53405b",
+      "name": "Note: Veo",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        420,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### 3. Montage (background)\n`render_reel.js` runs detached (setsid) because it takes ~2.5-3 min on 4 cores; the workflow polls `done.json`. Sub-pixel zoom with ffmpeg `perspective`, least-used music track, end card with question + call to action. `dry_run: true` stops after this.",
+        "height": 160,
+        "width": 2400
+      },
+      "id": "1a446ebd-c37d-40cf-9c31-63112d034466",
+      "name": "Note: Montage",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        420,
+        1220
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### 4. Resumable upload + publish\nMeta could not fetch the video from the n8n webhook (HEAD -> 404, no Content-Length/Range, error 2207077). So: container with `upload_type=resumable`, then the bytes are POSTed to the returned rupload.facebook.com URI with the Facebook Graph API credential. Poll up to 5 times, then media_publish.",
+        "height": 160,
+        "width": 2400
+      },
+      "id": "d1aa441e-f71b-446a-82bd-cbbfabc1d199",
+      "name": "Note: Upload",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        420,
+        2020
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### 5. Same video as a Story + report\nThe API has no \"share reel to story\" sticker, so the video is uploaded again as a Story. Every node on this branch continues on error: a failed story never breaks the published reel. Then permalink + HTML email.",
+        "height": 160,
+        "width": 2400
+      },
+      "id": "f84425e7-8f2a-4e44-97cf-c09c24c79487",
+      "name": "Note: Story",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        420,
+        3120
+      ]
+    }
+  ],
+  "connections": {
+    "Weekly Schedule (Sat 12:30)": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "Pick Frames",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pick Frames": {
+      "main": [
+        [
+          {
+            "node": "Jev On? (Opener)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Jev On? (Opener)": {
+      "main": [
+        [
+          {
+            "node": "Jev: Pick Opener",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Opener Decision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Jev: Pick Opener": {
+      "main": [
+        [
+          {
+            "node": "Opener Decision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Opener Decision": {
+      "main": [
+        [
+          {
+            "node": "Build Script Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Script Prompt": {
+      "main": [
+        [
+          {
+            "node": "Gemini: Write Scripts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini: Write Scripts": {
+      "main": [
+        [
+          {
+            "node": "Script Questions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Script Questions": {
+      "main": [
+        [
+          {
+            "node": "Jev On? (Script)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Jev On? (Script)": {
+      "main": [
+        [
+          {
+            "node": "Jev: Score Scripts",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Script Decision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Jev: Score Scripts": {
+      "main": [
+        [
+          {
+            "node": "Script Decision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Script Decision": {
+      "main": [
+        [
+          {
+            "node": "Build Veo Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Veo Request": {
+      "main": [
+        [
+          {
+            "node": "Veo: Start",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Veo: Start": {
+      "main": [
+        [
+          {
+            "node": "Veo Started?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Veo Started?": {
+      "main": [
+        [
+          {
+            "node": "Veo Wait 1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Veo Clip",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Veo Wait 1": {
+      "main": [
+        [
+          {
+            "node": "Veo Status 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Veo Status 1": {
+      "main": [
+        [
+          {
+            "node": "Veo Done 1?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Veo Done 1?": {
+      "main": [
+        [
+          {
+            "node": "Veo: Download",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Veo Wait 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Veo Wait 2": {
+      "main": [
+        [
+          {
+            "node": "Veo Status 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Veo Status 2": {
+      "main": [
+        [
+          {
+            "node": "Veo Done 2?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Veo Done 2?": {
+      "main": [
+        [
+          {
+            "node": "Veo: Download",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Veo Wait 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Veo Wait 3": {
+      "main": [
+        [
+          {
+            "node": "Veo Status 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Veo Status 3": {
+      "main": [
+        [
+          {
+            "node": "Veo Done 3?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Veo Done 3?": {
+      "main": [
+        [
+          {
+            "node": "Veo: Download",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Veo Clip",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Veo: Download": {
+      "main": [
+        [
+          {
+            "node": "Save Veo Clip",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Veo Clip": {
+      "main": [
+        [
+          {
+            "node": "Gemini: Review Clip",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini: Review Clip": {
+      "main": [
+        [
+          {
+            "node": "Clip Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clip Report": {
+      "main": [
+        [
+          {
+            "node": "Jev On? (Clip)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Jev On? (Clip)": {
+      "main": [
+        [
+          {
+            "node": "Jev: Judge Clip",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Clip Decision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Jev: Judge Clip": {
+      "main": [
+        [
+          {
+            "node": "Clip Decision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clip Decision": {
+      "main": [
+        [
+          {
+            "node": "Start Montage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "No Veo Clip": {
+      "main": [
+        [
+          {
+            "node": "Start Montage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start Montage": {
+      "main": [
+        [
+          {
+            "node": "Montage Wait 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Montage Wait 1": {
+      "main": [
+        [
+          {
+            "node": "Montage Status 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Montage Status 1": {
+      "main": [
+        [
+          {
+            "node": "Montage Done 1?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Montage Done 1?": {
+      "main": [
+        [
+          {
+            "node": "Prepare Reel",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Montage Wait 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Montage Wait 2": {
+      "main": [
+        [
+          {
+            "node": "Montage Status 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Montage Status 2": {
+      "main": [
+        [
+          {
+            "node": "Montage Done 2?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Montage Done 2?": {
+      "main": [
+        [
+          {
+            "node": "Prepare Reel",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Montage Wait 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Montage Wait 3": {
+      "main": [
+        [
+          {
+            "node": "Montage Status 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Montage Status 3": {
+      "main": [
+        [
+          {
+            "node": "Montage Done 3?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Montage Done 3?": {
+      "main": [
+        [
+          {
+            "node": "Prepare Reel",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Montage Timeout",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Reel": {
+      "main": [
+        [
+          {
+            "node": "Dry Run?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dry Run?": {
+      "main": [
+        [
+          {
+            "node": "Dry Run: Mark Reel",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create Reel Container",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dry Run: Mark Reel": {
+      "main": [
+        [
+          {
+            "node": "Build Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Reel Container": {
+      "main": [
+        [
+          {
+            "node": "Load Reel Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load Reel Video": {
+      "main": [
+        [
+          {
+            "node": "Upload Reel (resumable)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Reel (resumable)": {
+      "main": [
+        [
+          {
+            "node": "Reel Processing Wait 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reel Processing Wait 1": {
+      "main": [
+        [
+          {
+            "node": "Reel Status 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reel Status 1": {
+      "main": [
+        [
+          {
+            "node": "Reel Status Check 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reel Status Check 1": {
+      "main": [
+        [
+          {
+            "node": "Reel Ready 1?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reel Ready 1?": {
+      "main": [
+        [
+          {
+            "node": "Publish Reel",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reel Processing Wait 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reel Processing Wait 2": {
+      "main": [
+        [
+          {
+            "node": "Reel Status 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reel Status 2": {
+      "main": [
+        [
+          {
+            "node": "Reel Status Check 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reel Status Check 2": {
+      "main": [
+        [
+          {
+            "node": "Reel Ready 2?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reel Ready 2?": {
+      "main": [
+        [
+          {
+            "node": "Publish Reel",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reel Processing Wait 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reel Processing Wait 3": {
+      "main": [
+        [
+          {
+            "node": "Reel Status 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reel Status 3": {
+      "main": [
+        [
+          {
+            "node": "Reel Status Check 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reel Status Check 3": {
+      "main": [
+        [
+          {
+            "node": "Reel Ready 3?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reel Ready 3?": {
+      "main": [
+        [
+          {
+            "node": "Publish Reel",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reel Processing Wait 4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reel Processing Wait 4": {
+      "main": [
+        [
+          {
+            "node": "Reel Status 4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reel Status 4": {
+      "main": [
+        [
+          {
+            "node": "Reel Status Check 4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reel Status Check 4": {
+      "main": [
+        [
+          {
+            "node": "Reel Ready 4?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reel Ready 4?": {
+      "main": [
+        [
+          {
+            "node": "Publish Reel",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reel Processing Wait 5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reel Processing Wait 5": {
+      "main": [
+        [
+          {
+            "node": "Reel Status 5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reel Status 5": {
+      "main": [
+        [
+          {
+            "node": "Reel Status Check 5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reel Status Check 5": {
+      "main": [
+        [
+          {
+            "node": "Reel Ready 5?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reel Ready 5?": {
+      "main": [
+        [
+          {
+            "node": "Publish Reel",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reel Processing Failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Publish Reel": {
+      "main": [
+        [
+          {
+            "node": "Save Reel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Reel": {
+      "main": [
+        [
+          {
+            "node": "Create Story Container",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Story Container": {
+      "main": [
+        [
+          {
+            "node": "Load Story Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load Story Video": {
+      "main": [
+        [
+          {
+            "node": "Upload Story (resumable)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Story (resumable)": {
+      "main": [
+        [
+          {
+            "node": "Story Processing Wait 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Story Processing Wait 1": {
+      "main": [
+        [
+          {
+            "node": "Story Status 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Story Status 1": {
+      "main": [
+        [
+          {
+            "node": "Story Ready 1?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Story Ready 1?": {
+      "main": [
+        [
+          {
+            "node": "Publish Story",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Story Processing Wait 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Story Processing Wait 2": {
+      "main": [
+        [
+          {
+            "node": "Story Status 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Story Status 2": {
+      "main": [
+        [
+          {
+            "node": "Story Ready 2?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Story Ready 2?": {
+      "main": [
+        [
+          {
+            "node": "Publish Story",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Story Processing Wait 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Story Processing Wait 3": {
+      "main": [
+        [
+          {
+            "node": "Story Status 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Story Status 3": {
+      "main": [
+        [
+          {
+            "node": "Story Ready 3?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Story Ready 3?": {
+      "main": [
+        [
+          {
+            "node": "Publish Story",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Story Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Publish Story": {
+      "main": [
+        [
+          {
+            "node": "Story Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Story Result": {
+      "main": [
+        [
+          {
+            "node": "Get Reel Permalink",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Reel Permalink": {
+      "main": [
+        [
+          {
+            "node": "Build Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Email": {
+      "main": [
+        [
+          {
+            "node": "Send Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "reel_20260919_k3x9q",
+  "workDir": "/data/downloads/instagram/work/reel_20260919_k3x9q",
+  "out": "/data/downloads/instagram/out/reel_20260919_k3x9q.mp4",
+  "cover": "/data/downloads/instagram/out/reel_20260919_k3x9q_cover.jpg",
+  "done": "/data/downloads/instagram/work/reel_20260919_k3x9q/done.json",
+  "shots": [
+    { "kind": "video", "src": "/data/downloads/instagram/work/reel_20260919_k3x9q/hero.mp4", "dur": 6.0,
+      "slogan": "Fire-kissed and glistening", "dish": "Lamb Skewers", "audio": true },
+    { "kind": "still", "src": "/data/downloads/instagram/work/auto_post_1790000000000_1a2b3c4d_post.png", "dur": 2.5,
+      "slogan": "Blistered, bubbling, ready", "dish": "Margherita Pizza", "motion": { "z0": 0, "z1": 0.08, "dy0": 0, "dy1": 0 } },
+    { "kind": "still", "src": "/data/downloads/instagram/work/auto_story_1790200000000_9c0d1e2f_story.png", "dur": 2.5,
+      "slogan": "Bright, buttery, crisp", "dish": "Lemon Tart", "motion": { "z0": 0.09, "z1": 0.01, "dy0": 0, "dy1": 0 } }
+  ],
+  "end": { "bg": "/data/downloads/instagram/work/auto_story_1790100000000_5e6f7a8b_story.png",
+           "cta1": "Which one is your favourite?", "cta2": "Tell us in the comments", "dur": 3.2 },
+  "music": "/data/downloads/instagram/music/your-track-01.mp3",
+  "transitions": ["fade", "smoothleft", "smoothleft"],
+  "xdur": 0.3,
+  "ffmpeg": "/data/downloads/bin/ffmpeg",
+  "font": "/data/downloads/instagram/assets/font.ttf",
+  "sloganColor": "#FFFFFF",
+  "accentColor": "#E63946",
+  "logo": "/data/downloads/instagram/assets/logo.png",
+  "endBox": "/data/downloads/instagram/assets/end_box.png"
+}

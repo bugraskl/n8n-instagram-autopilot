@@ -1,0 +1,92 @@
+{
+  "name": "Instagram Autopilot - Error Notifier",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "9e6b0c4a-a7c9-4730-b5ec-345ea189394b",
+      "name": "On Workflow Error",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n  \"telegram_chat_id\": \"YOUR_TELEGRAM_CHAT_ID\",\n  \"alert_prefix\": \"Instagram autopilot error\"\n}",
+        "options": {}
+      },
+      "id": "dd15c762-8593-4be5-ba7a-3f3781fcbe72",
+      "name": "Config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "={{ $('Config').first().json.telegram_chat_id }}",
+        "text": "={{ \"⚠️ \" + $('Config').first().json.alert_prefix + \": \" + ($('On Workflow Error').first().json.execution?.error?.message || $('On Workflow Error').first().json.trigger?.error?.message || \"unknown error\") + \". Workflow: \" + ($('On Workflow Error').first().json.workflow?.name || \"?\") + ($('On Workflow Error').first().json.execution?.url ? \" | \" + $('On Workflow Error').first().json.execution.url : \"\") }}",
+        "additionalFields": {}
+      },
+      "id": "77414a17-3eec-4a05-87a1-87986edbb9b7",
+      "name": "Telegram: Error Alert",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        440,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Error notifier\nTelegram alert for any failure in the other workflows (e.g. Meta container not ready, montage timeout, reel processing error).\n\nUse it: open **Posts & Stories** and **Weekly AI Reel** -> *Settings* -> *Error workflow* -> choose this workflow. It does not need to be active to work as an error workflow.",
+        "height": 260,
+        "width": 600,
+        "color": 4
+      },
+      "id": "be6ac0ae-f2c9-4aea-8dd3-07d67aea4f63",
+      "name": "Note: Setup",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        -300
+      ]
+    }
+  ],
+  "connections": {
+    "On Workflow Error": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "Telegram: Error Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

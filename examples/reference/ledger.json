@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "note": "REFERENCE ONLY - do not copy into your data dir. Written by the posts & stories workflow at <data_dir>/state/ledger.json. Status flow: reserved -> checked -> validated -> ready -> published, or review (needs a human) / dry_run.",
+  "entries": [
+    {
+      "base": "auto_post_1790000000000_1a2b3c4d",
+      "kind": "post",
+      "hash": "1a2b3c4d00000000000000000000000000000000000000000000000000000000",
+      "sourceFile": "IMG_0001.jpg",
+      "angle": "close-up",
+      "status": "published",
+      "createdAt": "2026-09-15T08:30:00.000Z",
+      "dish": "Margherita Pizza",
+      "confidence": 1,
+      "dishSource": "catalog",
+      "caption": "Our margherita pizza comes out of the oven with blistered edges and bubbling mozzarella.",
+      "redTitle": "Blistered crust, molten centre",
+      "textTries": 5,
+      "jev": {
+        "status": "ok / revision: ok",
+        "chosen": "2.1",
+        "q": 0.842,
+        "revised": true,
+        "candidates": [
+          { "id": "1.1", "q": 0.731, "ok": true, "gates": [], "diag": ["appeal", "cliche"] },
+          { "id": "1.3", "q": 0.402, "ok": false, "gates": ["title_grammar"], "diag": ["title_grammar", "incomplete_title"] },
+          { "id": "2.1", "q": 0.842, "ok": true, "gates": [], "diag": [] },
+          { "id": "2.2", "q": 0.795, "ok": true, "gates": [], "diag": [] }
+        ]
+      },
+      "imageFile": "auto_post_1790000000000_1a2b3c4d.jpg",
+      "framed": true,
+      "frameCheck": {
+        "status": "jev", "accept": true, "truthful": 0.93, "quality": 2.4, "why": "",
+        "notes": "same", "top": "dark, empty background", "added": [], "removed": [], "defects": []
+      },
+      "readyAt": "2026-09-15T08:33:40.000Z",
+      "publishedAt": "2026-09-15T08:35:10.000Z",
+      "mediaId": "EXAMPLE_MEDIA_ID_1"
+    },
+    {
+      "base": "auto_story_1790100000000_5e6f7a8b",
+      "kind": "story",
+      "hash": "5e6f7a8b00000000000000000000000000000000000000000000000000000000",
+      "sourceFile": "IMG_0042.jpg",
+      "angle": "the first bite",
+      "status": "review",
+      "createdAt": "2026-09-16T14:30:00.000Z",
+      "reason": "Dish could not be recognised with confidence",
+      "suggestedDish": "Lamb Skewers",
+      "confidence": 0.62
+    }
+  ]
+}

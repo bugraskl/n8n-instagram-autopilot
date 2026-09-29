@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "note": "Photo file name -> dish. source: confirmed = checked by a person (always wins), ai_consensus = two models agreed, skipped = never publish this photo. Any other source is ignored and the AI guess is used.",
+  "photos": {
+    "IMG_0001.jpg": { "dish": "Margherita Pizza", "source": "confirmed" },
+    "IMG_0002.jpg": { "dish": "Grilled Chicken Wrap", "source": "ai_consensus" },
+    "IMG_0003.jpg": { "dish": "", "source": "skipped" }
+  }
+}

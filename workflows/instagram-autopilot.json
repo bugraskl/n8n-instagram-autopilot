@@ -1,0 +1,1873 @@
+{
+  "name": "Instagram Autopilot - Posts & Stories",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "30 11 * * 2,5,0"
+            }
+          ]
+        }
+      },
+      "id": "9edd39df-dd8d-4f07-b0da-5e13f0c263af",
+      "name": "Post Schedule",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        -100
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "30 17 * * 1,3,4,6"
+            }
+          ]
+        }
+      },
+      "id": "81a390e6-eef4-4bcd-98f2-9bbdcbeba9ff",
+      "name": "Story Schedule",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n  \"data_dir\": \"/data/downloads/instagram\",\n  \"public_media_url\": \"https://n8n.example.com/webhook/ig-media?f=\",\n  \"dry_run\": true,\n  \"brand_name\": \"Your Restaurant\",\n  \"brand_context\": \"a local restaurant\",\n  \"product_prefix\": \"\",\n  \"language\": \"English\",\n  \"locale\": \"en-US\",\n  \"ig_user_id\": \"YOUR_IG_USER_ID\",\n  \"graph_api_version\": \"v23.0\",\n  \"photo_folders\": [\n    \"photos\"\n  ],\n  \"telegram_chat_id\": \"YOUR_TELEGRAM_CHAT_ID\",\n  \"email_from\": \"Instagram Autopilot <you@example.com>\",\n  \"email_to\": \"you@example.com\",\n  \"hashtags\": {\n    \"brand\": \"YourRestaurant\",\n    \"city\": \"YourCity\",\n    \"discovery\": [\n      \"yourcityfood\",\n      \"yourcityeats\",\n      \"yourcityrestaurants\",\n      \"foodieyourcity\"\n    ],\n    \"fallback\": [\n      \"localfood\",\n      \"foodie\"\n    ]\n  },\n  \"hashtag_categories\": [\n    {\n      \"match\": \"soup\",\n      \"tag\": \"soup\"\n    },\n    {\n      \"match\": \"cake|tart|pie|brownie|cookie|ice cream|gelato|dessert|pudding\",\n      \"tag\": \"dessert\"\n    },\n    {\n      \"match\": \"salad|hummus|dip|yogurt|yoghurt|mezze\",\n      \"tag\": \"mezze\"\n    },\n    {\n      \"match\": \"pizza\",\n      \"tag\": \"pizza\"\n    },\n    {\n      \"match\": \"burger\",\n      \"tag\": \"burger\"\n    },\n    {\n      \"match\": \"wrap|kebab|gyro|shawarma|taco\",\n      \"tag\": \"streetfood\"\n    },\n    {\n      \"match\": \"chicken\",\n      \"tag\": \"chicken\"\n    },\n    {\n      \"match\": \"\",\n      \"tag\": \"grill\"\n    }\n  ],\n  \"angle_sets\": [\n    {\n      \"match\": \"soup\",\n      \"angles\": [\n        \"rising steam\",\n        \"creamy texture\",\n        \"spices on top\",\n        \"the first spoonful\",\n        \"serving moment\",\n        \"colour in the bowl\"\n      ]\n    },\n    {\n      \"match\": \"cake|tart|pie|brownie|cookie|ice cream|gelato|dessert|pudding\",\n      \"angles\": [\n        \"surface texture\",\n        \"syrup shine\",\n        \"layers in the cut\",\n        \"the first bite\",\n        \"serving moment\",\n        \"colour on the plate\"\n      ]\n    },\n    {\n      \"match\": \"salad|hummus|dip|yogurt|yoghurt|mezze\",\n      \"angles\": [\n        \"freshness\",\n        \"colours\",\n        \"chopped texture\",\n        \"serving moment\",\n        \"balance on the plate\",\n        \"appetising detail\"\n      ]\n    },\n    {\n      \"match\": \"\",\n      \"angles\": [\n        \"close-up\",\n        \"grill marks\",\n        \"garnish\",\n        \"colours\",\n        \"serving moment\",\n        \"the first bite\",\n        \"balance on the plate\",\n        \"appetising detail\"\n      ]\n    }\n  ],\n  \"style_examples\": [\n    \"Charred edges, juicy centre\",\n    \"Straight from the fire to your table\",\n    \"Slow-cooked until it melts\"\n  ],\n  \"title_max_words\": 5,\n  \"title_max_chars\": 44,\n  \"banned_phrases\": [\n    \"lunch\",\n    \"dinner\",\n    \"breakfast\",\n    \"today\",\n    \"tonight\",\n    \"day\",\n    \"break\",\n    \"treat yourself\",\n    \"great choice\",\n    \"feast of flavours\",\n    \"feast of flavors\",\n    \"leaves a mark on your palate\",\n    \"every bite\"\n  ],\n  \"prohibited_pattern\": \"%\\\\s*\\\\d|\\\\d\\\\s*%|[$€£¥]\\\\s*\\\\d|\\\\d\\\\s*(?:[$€£¥]|(?:usd|eur|gbp|dollars?|euros?)\\\\b)|discount|\\\\bsale\\\\b|\\\\bpromo|coupon|voucher|for free|cheapest|guarantee|\\\\b\\\\d{1,2}(?::\\\\d{2})?\\\\s*(?:am|pm)\\\\b|\\\\bin \\\\d+ min\",\n  \"jev_enabled\": true,\n  \"jev_model\": \"typesafe/jev-1.13\",\n  \"jev_min_score\": 0.8,\n  \"model_pro\": \"gemini-3.1-pro-preview\",\n  \"model_flash\": \"gemini-3.8-flash\",\n  \"model_image\": \"gemini-3-pro-image\",\n  \"font_path\": \"\",\n  \"slogan_color\": \"#FFFFFF\",\n  \"accent_color\": \"#E63946\"\n}",
+        "options": {}
+      },
+      "id": "c50791f4-fada-46c2-89c4-ec436a0cc966",
+      "name": "Config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Picks one unused photo for today's format and reserves it in the ledger.\n// Each run produces only one format: the trigger that fired decides post vs story.\nconst fs = require('fs');\nconst crypto = require('crypto');\nconst CFG = $('Config').first().json;\nconst LOC = CFG.locale || 'en-US';\nconst LANG = CFG.language || 'English';\nconst ROOT = CFG.data_dir;\nconst STATE = ROOT + '/state';\nconst ledgerPath = STATE + '/ledger.json';\nconst kind = $('Post Schedule').isExecuted ? 'post' : 'story';\nfs.mkdirSync(STATE, {recursive: true});\nlet ledger = {version: 1, entries: []};\nif (fs.existsSync(ledgerPath)) ledger = JSON.parse(fs.readFileSync(ledgerPath, 'utf8'));\nif (!Array.isArray(ledger.entries)) throw new Error('Ledger is corrupt: ' + ledgerPath);\nlet menuNames = [];\ntry { menuNames = JSON.parse(fs.readFileSync(STATE + '/menu.json', 'utf8')).items || []; } catch (e) {}\nif (!menuNames.length) throw new Error('Menu list is empty: add your publishable products to ' + STATE + '/menu.json');\nlet overrides = {};\ntry { overrides = JSON.parse(fs.readFileSync(STATE + '/photo_overrides.json', 'utf8')); } catch (e) {}\n// Persistent photo -> dish catalog: verified names always win over the AI guess\nlet catalog = {};\ntry { catalog = JSON.parse(fs.readFileSync(STATE + '/photo_dishes.json', 'utf8')).photos || {}; } catch (e) {}\n// Photos the owner rejected are never picked\nconst skipped = new Set(Object.keys(catalog).filter(f => (catalog[f] || {}).source === 'skipped'));\nconst catalogDishOf = f => {\n  const e = catalog[f];\n  if (!e || !e.dish) return '';\n  return (e.source === 'confirmed' || e.source === 'ai_consensus') ? e.dish : '';\n};\n// A photo is \"used\" once it has a ledger entry - except dry runs, and review cases that now have an override\nconst retry = e => e.status === 'review' && overrides[e.sourceFile];\nconst used = new Set(ledger.entries.filter(e => !retry(e) && e.status !== 'dry_run').map(e => e.hash).filter(Boolean));\nconst corrected = new Set(ledger.entries.filter(retry).map(e => e.sourceFile));\nconst options = [];\nfor (const folder of (CFG.photo_folders || ['photos'])) {\n  const dir = ROOT + '/' + folder;\n  if (!fs.existsSync(dir)) continue;\n  for (const file of fs.readdirSync(dir).filter(x => /\\.(jpe?g|png|webp)$/i.test(x) && !/logo/i.test(x)).sort()) {\n    if (skipped.has(file)) continue;\n    const full = dir + '/' + file;\n    const hash = crypto.createHash('sha256').update(fs.readFileSync(full)).digest('hex');\n    if (!used.has(hash)) options.push({file, full, hash});\n  }\n}\n// Nothing left to publish: the run ends quietly (add more photos)\nif (!options.length) return [];\nconst correctedOptions = options.filter(o => corrected.has(o.file));\n// Prefer photos whose dish is already known, so photos with a naming risk wait\nconst knownOptions = options.filter(o => catalogDishOf(o.file));\nconst pool = correctedOptions.length ? correctedOptions : (knownOptions.length ? knownOptions : options);\nconst selected = pool[Math.floor(Math.random() * pool.length)];\n// The tone \"angle\" must fit the product type: a soup has no grill marks\nconst dishName = catalogDishOf(selected.file) || overrides[selected.file] || '';\nconst toRe = m => { try { return new RegExp(m, 'iu'); } catch (e) { return null; } };\nconst sets = Array.isArray(CFG.angle_sets) ? CFG.angle_sets : [];\nconst set = sets.find(s => s.match && toRe(s.match) && toRe(s.match).test(dishName)) || sets.find(s => !s.match) || {angles: ['close-up']};\nconst angles = set.angles;\nconst recent = ledger.entries.slice(-5).map(e => e.angle);\nconst angle = angles.find(a => !recent.includes(a)) || angles[ledger.entries.length % angles.length];\nconst base = 'auto_' + kind + '_' + Date.now() + '_' + selected.hash.slice(0, 8);\nconst catalogDish = catalogDishOf(selected.file);\nledger.entries.push({base, kind, hash: selected.hash, sourceFile: selected.file, angle, status: 'reserved', createdAt: new Date().toISOString()});\nconst tmp = ledgerPath + '.tmp'; fs.writeFileSync(tmp, JSON.stringify(ledger, null, 2)); fs.renameSync(tmp, ledgerPath);\nreturn [{json: {base, kind, rawPath: selected.full, sourceFile: selected.file, sourceHash: selected.hash, angle, menuNames, catalogDish, overrideDish: overrides[selected.file] || ''}}];\n"
+      },
+      "id": "c8557a5a-365a-4669-a84f-b17eb3fb3aa3",
+      "name": "Pick Photo",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loads the photo as binary for Gemini and builds the analysis prompt.\nconst fs = require('fs');\nconst CFG = $('Config').first().json;\nconst LOC = CFG.locale || 'en-US';\nconst LANG = CFG.language || 'English';\nconst j = $json;\nconst p = j.rawPath;\nconst ext = (p.split('.').pop() || 'jpg').toLowerCase();\nconst mime = ext === 'png' ? 'image/png' : ext === 'webp' ? 'image/webp' : 'image/jpeg';\nconst binary = await this.helpers.prepareBinaryData(fs.readFileSync(p), j.sourceFile, mime);\nconst maxW = CFG.title_max_words || 5, maxC = CFG.title_max_chars || 44;\nconst banned = (CFG.banned_phrases || []).join(', ');\nconst examples = (CFG.style_examples || []).map(s => '\"' + s + '\"').join(', ');\nlet dishRule;\nif (j.catalogDish) dishRule = 'The dish in this photo is DEFINITELY: ' + j.catalogDish + '. Write exactly this in the dish field and set confidence to 1; do not guess the dish again.';\nelse if (j.overrideDish) dishRule = 'The owner corrected the dish to: ' + j.overrideDish + '. Write exactly this in the dish field and set confidence to 1.';\nelse dishRule = 'In the dish field, choose the SPECIFIC product shown in the photo from this list: ' + j.menuNames.join(' | ') + '. Do not choose a category name, a generic product name or an ambiguous dish; if you are not sure, leave dish empty. confidence is your recognition confidence between 0 and 1: give more than 0.90 only when there is distinctive visual evidence.';\nconst prompt = [\n  'You write Instagram copy for ' + CFG.brand_name + ' (' + (CFG.brand_context || 'a restaurant') + '). Judge the photo only by what is visibly in it. Write natural, varied copy in ' + LANG + '. Tone focus: ' + j.angle + '.',\n  dishRule,\n  'In the visible field, list 4-10 short items that are CLEARLY visible in the photo: foods, garnishes, drinks and serving items (plate, board, bowl, type of bread included); do not add anything you are unsure about.',\n  'In the scene field, describe in one objective sentence what the main dish looks like and how it is served (for example the kind of meat, fish or vegetable, whether it is on a skewer, in a wrap or flatbread, on a plate, or in a soup bowl).',\n  'Do NOT use menu product names in the visible and scene fields; only describe what you see.',\n  'In the options field, write THREE CLEARLY DIFFERENT alternatives. In each alternative:',\n  'redTitle = the white headline printed on the image. It is about the main dish itself (its taste, texture, cooking), appetizing, at most ' + maxW + ' words and ' + maxC + ' characters, a complete phrase in sentence case, WITHOUT the dish name (the dish name is printed on its own line below it). Do not make a garnish or the plate the subject of the headline.',\n  examples ? 'Tone examples (do not copy them, only take the tone): ' + examples + '.' : '',\n  'caption = 1-2 short sentences, at least 40 characters. It mentions the dish by its short name (without anything in parentheses) naturally inside a sentence, not in Title Case, and contains only details verified in the photo. Describe visible texture, grill marks, freshness or a distinct garnish if they are really there; do not list serving items such as plates, bowls or glasses; do not repeat the brand name.',\n  banned ? 'Never use these words or phrases in any alternative: ' + banned + '.' : '',\n  'Write nothing but JSON: {\"dish\":\"the exact specific name from the list\",\"confidence\":0.0,\"visible\":[\"...\"],\"scene\":\"...\",\"options\":[{\"redTitle\":\"...\",\"caption\":\"...\"},{\"redTitle\":\"...\",\"caption\":\"...\"},{\"redTitle\":\"...\",\"caption\":\"...\"}]}.',\n  'Do not invent prices, discounts, promotions, opening hours, addresses, phone numbers, ingredients or any feature that is not verified in the photo. No emoji, no hashtags.'\n].filter(Boolean).join(' ');\nreturn [{json: {...j, analysisPrompt: prompt}, binary: {data: binary}}];\n"
+      },
+      "id": "f092485b-cff2-4606-9cfc-b0cbcf3f9352",
+      "name": "Read Photo",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "={{ 'models/' + $('Config').first().json.model_pro }}",
+          "mode": "id"
+        },
+        "text": "={{ $json.analysisPrompt }}",
+        "inputType": "binary",
+        "options": {}
+      },
+      "id": "a9668e5d-6d2e-4e0d-aba0-87779b185cd9",
+      "name": "Analyze Photo (Gemini)",
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        880,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Gate 1 (deterministic): dish identity + rule-based copy checks, before any judge sees the copy.\nconst fs = require('fs');\nconst CFG = $('Config').first().json;\nconst LOC = CFG.locale || 'en-US';\nconst LANG = CFG.language || 'English';\n// ---- Rule-based copy checks (deterministic, run before the judge) ----\nconst norm = s => String(s || '').trim().toLocaleLowerCase(LOC);\nconst clean = s => String(s || '').replace(/[\\r\\n\\t]+/g, ' ').replace(/\\s+/g, ' ').trim();\nconst reEsc = s => String(s).replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&');\n// Unicode-aware word boundaries (JavaScript's \\b only knows ASCII letters)\nconst phraseRe = list => { const l = (list || []).filter(Boolean); return l.length ? new RegExp('(?<![\\\\p{L}\\\\p{N}])(?:' + l.map(reEsc).join('|') + ')(?![\\\\p{L}\\\\p{N}])', 'iu') : null; };\nconst prohibited = CFG.prohibited_pattern ? new RegExp(CFG.prohibited_pattern, 'iu') : null; // prices, promotions, times...\nconst cliche = phraseRe(CFG.banned_phrases);\nconst TITLE_MAX_WORDS = CFG.title_max_words || 5, TITLE_MAX_CHARS = CFG.title_max_chars || 44;\n// Name the reason a candidate was dropped: it is stored in the ledger and shown in the email\nconst why = (c, t, shortDish, recentCaps) => {\n  if (!c) return 'caption empty';\n  if (c.length < 35) return 'caption too short';\n  if (c.length > 350) return 'caption too long';\n  if (!norm(c).includes(norm(shortDish))) return 'dish name missing from caption';\n  if (!t) return 'headline empty';\n  if (t.length > TITLE_MAX_CHARS) return 'headline too long';\n  if (t.split(/\\s+/).length > TITLE_MAX_WORDS) return 'headline has more than ' + TITLE_MAX_WORDS + ' words';\n  // The dish name is already printed on the product line right below the headline\n  if (norm(t).includes(norm(shortDish))) return 'headline repeats the dish name';\n  if (prohibited && prohibited.test(c + ' ' + t)) return 'prohibited phrase (price/promotion etc.)';\n  if (cliche && cliche.test(c + ' ' + t)) return 'banned cliché';\n  if (recentCaps.includes(norm(c))) return 'repeats a recent caption';\n  return '';\n};\nconst normalizeCand = (o, dish, shortDish) => ({\n  redTitle: clean(o && o.redTitle).replace(/[.!…]+$/, ''),\n  caption: clean(o && o.caption).split(dish).join(shortDish)\n});\nconst src = $('Read Photo').first().json;\nconst path = CFG.data_dir + '/state/ledger.json';\nconst ledger = JSON.parse(fs.readFileSync(path, 'utf8'));\nconst entry = ledger.entries.find(e => e.base === src.base);\nif (!entry) throw new Error('Ledger entry not found: ' + src.base);\nconst save = () => { const tmp = path + '.tmp'; fs.writeFileSync(tmp, JSON.stringify(ledger, null, 2)); fs.renameSync(tmp, path); };\nlet text = ''; try { text = $json.content.parts[0].text || ''; } catch (e) {}\nif (!text && $json.text) text = $json.text;\ntext = String(text).replace(/```(?:json)?/gi, '').trim();\nlet ai; try { ai = JSON.parse(text); } catch (e) { ai = {}; }\n\nconst menu = new Set(src.menuNames.map(norm));\n// Priority: user override > verified catalog > AI guess\nconst trusted = clean(src.overrideDish || src.catalogDish);\nconst dish = trusted || clean(ai.dish);\nconst confidence = Number(ai.confidence);\nconst reviewPath = CFG.data_dir + '/state/photo_overrides.json';\nconst reviewOut = (reason, suggested) => {\n  entry.status = 'review'; entry.reason = reason; entry.suggestedDish = suggested;\n  entry.confidence = Number.isFinite(confidence) ? confidence : null; save();\n  return [{json: {reviewNeeded: true, reason, sourceFile: src.sourceFile, suggestedDish: suggested, confidence: entry.confidence, reviewPath}}];\n};\n// Product identity is never delegated to Jev: it cannot see the photo, and picking the dish\n// from Gemini's text description was unreliable in testing.\nif (!menu.has(norm(dish)) || (!trusted && (!Number.isFinite(confidence) || confidence < 0.9))) {\n  return reviewOut('Dish could not be recognised with confidence', clean(ai.dish));\n}\nconst shortDish = dish.replace(/\\s*\\([^)]*\\)\\s*/g, ' ').replace(/\\s+/g, ' ').trim();\nconst recentCaps = ledger.entries.filter(e => e.status === 'published').slice(-5).map(e => norm(e.caption));\n// The model writes three alternatives; ALL that pass the rules go to Jev and the best one wins there\nconst raw = Array.isArray(ai.options) && ai.options.length ? ai.options : [{redTitle: ai.redTitle, caption: ai.caption}];\nconst candidates = [], codeFails = [];\nraw.forEach((o, i) => {\n  const c = normalizeCand(o, dish, shortDish);\n  const w = why(c.caption, c.redTitle, shortDish, recentCaps);\n  if (w) codeFails.push({...c, round: 1, fail: w}); else candidates.push({...c, round: 1, id: '1.' + (i + 1)});\n});\nconst visible = Array.isArray(ai.visible) ? ai.visible.map(clean).filter(Boolean).slice(0, 12) : [];\nentry.status = 'checked'; entry.dish = dish; entry.confidence = Number.isFinite(confidence) ? confidence : null;\nentry.dishSource = src.overrideDish ? 'override' : (src.catalogDish ? 'catalog' : 'ai'); save();\nreturn [{json: {reviewNeeded: false, base: src.base, kind: src.kind, sourceFile: src.sourceFile, angle: src.angle, dish, shortDish,\n  dishSource: entry.dishSource, confidence: entry.confidence, visible, scene: clean(ai.scene), candidates, codeFails}}];\n"
+      },
+      "id": "19b8fb4e-9cd6-402d-b587-836954e2e4fb",
+      "name": "Validate Analysis",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "a7ca7276-b3e7-43b3-bf92-27e561884ff8",
+              "leftValue": "={{ $json.reviewNeeded }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "f5aa1275-7b0a-4b4a-aa47-116e8e0a6240",
+      "name": "Needs Review?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1320,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Config').first().json.telegram_chat_id }}",
+        "text": "={{ \"⚠️ \" + $('Config').first().json.brand_name + \": nothing was published. Reason: \" + ($json.reason || \"dish could not be recognised with confidence\") + \". Photo: \" + $json.sourceFile + \". Dish: \" + ($json.suggestedDish || \"none\") + ($json.confidence != null ? \" (confidence \" + Math.round($json.confidence * 100) + \"%)\" : \"\") + \". To retry, add the correct dish for this photo to \" + $json.reviewPath }}",
+        "additionalFields": {}
+      },
+      "id": "0603d76e-4d36-4b88-bba2-0a2e6fb205fd",
+      "name": "Telegram: Review Needed",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1540,
+        -220
+      ],
+      "webhookId": "f40eaeb6-fc06-41b4-80ef-317074dceecf"
+    },
+    {
+      "parameters": {
+        "jsCode": "const CFG = $('Config').first().json;\nconst LOC = CFG.locale || 'en-US';\nconst LANG = CFG.language || 'English';\n// ---- Jev (TypeSafe) shared definitions: a typed decision model. It never writes text and never sees images. ----\nconst JEV_MODEL = CFG.jev_model || 'typesafe/jev-1.13';\nconst JEV_ON = CFG.jev_enabled !== false;\nconst Q_OK = Number(CFG.jev_min_score) || 0.80; // best candidate below this score triggers one revision round\nconst TMAXW = CFG.title_max_words || 5;\nconst productLine = d => { const s = d.shortDish || ''; const p = String(CFG.product_prefix || '').trim(); return p && !s.toLocaleLowerCase(LOC).startsWith(p.toLocaleLowerCase(LOC)) ? p + ' ' + s : s; };\nconst jevQuestions = (kind) => {\n  const q = {\n    dish_match: {type: 'noul', instructions: 'The white headline (title) and the caption are Instagram copy for the restaurant dish named in \"dish\". Do they describe that dish (as presented in \"presentation\") and not a different food?', criteria: {true: 'Text is about the named dish', false: 'Text describes a different dish or contradicts the named dish'}},\n    title_grammar: {type: 'score', instructions: 'Rate the ' + LANG + ' grammar and naturalness of the title (a short headline, max ' + TMAXW + ' words). A headline may be a noun phrase, but it must be complete and idiomatic; a dangling or cut-off ending, a wrong inflection or an odd word combination counts as broken.', criteria: ['broken or incomplete ' + LANG, 'awkward or unnatural', 'correct but plain', 'natural, fluent ' + LANG]},\n    title_focus: {type: 'noul', instructions: 'Is the title mainly about the main dish itself (its taste, texture, cooking, freshness or appetite appeal) rather than mainly about a side item, garnish, pickle, drink, plate or camera angle?', criteria: {true: 'Focused on the main dish', false: 'Mainly about a side item, garnish, prop or the photo itself'}},\n    title_appeal: {type: 'score', instructions: 'How appetizing and specific is the title as a food advertising headline for ' + (CFG.brand_context || 'a restaurant') + '?', criteria: ['generic or dull', 'acceptable', 'appetizing', 'very appetizing and specific']},\n    main_issue: {type: 'choice', instructions: 'What is the single most important problem with this copy?', criteria: {\n      none: 'No real problem, ready to publish',\n      grammar: LANG + ' grammar/spelling error or unnatural wording',\n      incomplete_title: 'Title is an incomplete or dangling phrase',\n      off_focus: 'Title focuses on a side item, garnish or prop instead of the dish',\n      ungrounded: 'Mentions a food or detail not listed in visible_in_photo',\n      cliche: 'Generic cliché advertising phrases',\n      dish_mismatch: 'Describes a different dish than the named one',\n      repeats_dish: 'Title repeats the dish name, which is already printed on the product line below it'}}\n  };\n  if (kind === 'post') {\n    q.caption_grammar = {type: 'score', instructions: 'Rate the ' + LANG + ' grammar and naturalness of the caption.', criteria: ['broken ' + LANG, 'awkward or unnatural', 'correct but plain', 'natural, fluent ' + LANG]};\n    q.caption_grounded = {type: 'noul', instructions: 'Is every specific food, side dish, drink, sauce or serving detail mentioned in the caption supported by the visible_in_photo list or presentation (synonyms allowed)?', criteria: {true: 'Everything mentioned is visible', false: 'Mentions something that is not in the visible list'}};\n    q.caption_appeal = {type: 'score', instructions: 'How appetizing and engaging is the caption for Instagram food marketing? Listing plates, bowls or cups is dull; vivid, specific description of the dish is good.', criteria: ['dull or list-like', 'acceptable', 'appetizing', 'very appetizing and vivid']};\n  }\n  return q;\n};\nconst jevBody = (d, c) => {\n  const s = {brand: CFG.brand_name + ' - ' + (CFG.brand_context || 'a restaurant') + ' (Instagram account)', format: d.kind === 'post' ? 'feed post' : 'story (only the title is shown, no caption)',\n    dish: d.dish, presentation: d.scene || '', visible_in_photo: d.visible || [],\n    layout: 'The title is printed in white on the photo; directly below it the product line \"' + productLine(d) + '\" is printed in the accent colour.', title: c.redTitle};\n  if (d.kind === 'post') s.caption = c.caption; else s.caption_for_context_only = c.caption;\n  return {model: JEV_MODEL, state: s, questions: jevQuestions(d.kind)};\n};\nconst PING = {model: JEV_MODEL, state: 'connectivity check', questions: {ok: {type: 'noul', instructions: 'Is this a connectivity check?', criteria: {true: 'yes', false: 'no'}}}};\n// Jev diagnoses -> revision instructions for the writer model\nconst DIRECTIVES = {\n  grammar: 'There is a ' + LANG + ' grammar or naturalness problem; use fluent, natural ' + LANG + '.',\n  incomplete_title: 'The headline is an unfinished phrase; write a complete headline that makes sense on its own (no dangling endings).',\n  off_focus: 'The headline is about a garnish, side item, plate or camera angle instead of the main dish; make it describe the taste, texture, cooking or appetite appeal of the main dish itself.',\n  ungrounded: 'Something is mentioned that is not visible in the photo; only use items from the visible list.',\n  cliche: 'The wording is generic, clichéd advertising language; use a specific, concrete and fresh phrase for this dish.',\n  dish_mismatch: 'The text describes a different dish; describe only the named dish.',\n  repeats_dish: 'The headline repeats the dish name; the dish name is already printed below it, so do not use it in the headline.',\n  appeal: 'The headline is not appetizing or specific enough; lead with the most attractive visible quality of the dish.',\n  caption_grammar: 'The caption is grammatically broken or unnatural; write two short, fluent, natural sentences.',\n  caption_appeal: 'The caption reads like a list or is flat; instead of listing serving items, describe the dish vividly and appetizingly.',\n  title_grammar: 'The headline is grammatically broken or artificial; write a natural ' + LANG + ' headline.'\n};\nconst LABELS = {dish_mismatch: 'dish mismatch', title_grammar: 'broken headline language', caption_grammar: 'broken caption language', ungrounded: 'detail not in photo',\n  off_focus: 'headline not about the dish', appeal: 'flat headline', caption_appeal: 'flat caption', grammar: 'grammar', incomplete_title: 'unfinished headline',\n  cliche: 'cliché', repeats_dish: 'repeats dish name'};\n// Weighted quality score (0..1) + hard gates. main_issue is only a revision hint, never a gate:\n// in testing it always picked *some* issue (usually \"cliche\"), even for good copy.\nconst evaluate = (kind, A) => {\n  const g = (k, f) => A[k] ? A[k][f] : null;\n  const r = {dish: g('dish_match', 'noul'), tg: g('title_grammar', 'score'), tf: g('title_focus', 'noul'), ta: g('title_appeal', 'score'),\n    issue: g('main_issue', 'choice'), issueP: A.main_issue && A.main_issue.probabilities ? (A.main_issue.probabilities[A.main_issue.choice] || 0) : 0,\n    cg: g('caption_grammar', 'score'), gr: g('caption_grounded', 'noul'), ca: g('caption_appeal', 'score')};\n  const gates = [];\n  if (r.dish < 0.5) gates.push('dish_mismatch');\n  if (r.tg < 1.5) gates.push('title_grammar');\n  if (kind === 'post') { if (r.cg < 1.5) gates.push('caption_grammar'); if (r.gr < 0.35) gates.push('ungrounded'); }\n  const q = kind === 'post'\n    ? 0.25 * r.tf + 0.25 * r.ta / 3 + 0.15 * r.tg / 3 + 0.15 * r.cg / 3 + 0.10 * r.gr + 0.10 * r.ca / 3\n    : 0.35 * r.tf + 0.40 * r.ta / 3 + 0.25 * r.tg / 3;\n  const diag = new Set();\n  if (r.tg < 2) diag.add('title_grammar');\n  if (r.tf < 0.5) diag.add('off_focus');\n  if (r.ta < 1.5) diag.add('appeal');\n  if (kind === 'post') { if (r.cg < 2) diag.add('caption_grammar'); if (r.gr < 0.5) diag.add('ungrounded'); if (r.ca < 1.5) diag.add('caption_appeal'); }\n  if (r.dish < 0.5) diag.add('dish_mismatch');\n  if (r.issue && r.issue !== 'none' && r.issueP >= 0.5 && DIRECTIVES[r.issue]) diag.add(r.issue);\n  return {...r, q: Math.round(q * 1000) / 1000, gates, ok: gates.length === 0, diag: [...diag]};\n};\nconst revisionPrompt = (d, rated, fails) => {\n  const lines = [];\n  rated.forEach((c, i) => {\n    const probs = (c.diag || []).map(x => DIRECTIVES[x]).filter(Boolean).join(' ') || 'no clear problem';\n    lines.push((i + 1) + ') Headline: \"' + c.redTitle + '\" | Caption: \"' + c.caption + '\" | Quality score: ' + (c.q == null ? '?' : Math.round(c.q * 100)) + '/100 | Problems: ' + probs);\n  });\n  (fails || []).forEach(c => lines.push('- Candidate rejected by the rules: \"' + c.redTitle + '\" / \"' + c.caption + '\" -> ' + c.fail));\n  const banned = (CFG.banned_phrases || []).join(', ');\n  return 'Copy candidates written for an Instagram ' + (d.kind === 'post' ? 'feed post' : 'story') + ' of ' + CFG.brand_name + ' (' + (CFG.brand_context || 'a restaurant') + ') went through an independent quality review. ' +\n    'Dish: ' + d.dish + '. Presentation: ' + (d.scene || '-') + ' Visible in the photo: ' + ((d.visible || []).join(', ') || '-') + '. Tone focus: ' + d.angle + '.\\n' +\n    'Review results:\\n' + (lines.join('\\n') || '(no valid candidate)') + '\\n' +\n    'Fix these problems and write THREE NEW, CLEARLY DIFFERENT alternatives in ' + LANG + '. Keep the strengths of the highest-scoring candidate. ' +\n    'redTitle: the white headline, at most ' + TMAXW + ' words and ' + (CFG.title_max_chars || 44) + ' characters, a complete phrase about the main dish itself, appetizing, WITHOUT the dish name (it is printed separately below it), sentence case, no trailing period. ' +\n    'caption: 1-2 short natural sentences, at least 40 characters, mentioning the dish name (\"' + d.shortDish.toLocaleLowerCase(LOC) + '\") naturally inside a sentence, using only details from the visible list and not listing serving items such as plates, bowls or glasses. ' +\n    (banned ? 'Do not use these words or phrases: ' + banned + '. ' : '') + 'No prices, promotions, opening hours, addresses, emoji or hashtags. ' +\n    'Write JSON only: {\"options\":[{\"redTitle\":\"...\",\"caption\":\"...\"},{\"redTitle\":\"...\",\"caption\":\"...\"},{\"redTitle\":\"...\",\"caption\":\"...\"}]}';\n};\n\n// One Jev request per candidate, so each score is independent of the others\nconst d = $json;\nconst items = d.candidates.map((c, i) => ({json: {idx: i, body: jevBody(d, c)}}));\n// No candidate passed the rules: send a single ping so the flow still reaches the decision node (which asks for a revision)\nif (!items.length) items.push({json: {idx: -1, body: PING}});\nreturn items;\n"
+      },
+      "id": "5d260240-ef63-4bdc-84ec-a79fa022e1e6",
+      "name": "Jev Questions",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1540,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "39efbe27-8b9a-4f89-8ef9-41ef743e2007",
+              "leftValue": "={{ $('Config').first().json.jev_enabled }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "147049eb-0113-43e1-ae37-d59113b0a235",
+      "name": "Jev On?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1760,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/alpha/decisions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.body }}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "e2b022a9-205a-4e5c-9e81-aa8d87cb8518",
+      "name": "Jev: Score Copy",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1980,
+        0
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const CFG = $('Config').first().json;\nconst LOC = CFG.locale || 'en-US';\nconst LANG = CFG.language || 'English';\n// ---- Jev (TypeSafe) shared definitions: a typed decision model. It never writes text and never sees images. ----\nconst JEV_MODEL = CFG.jev_model || 'typesafe/jev-1.13';\nconst JEV_ON = CFG.jev_enabled !== false;\nconst Q_OK = Number(CFG.jev_min_score) || 0.80; // best candidate below this score triggers one revision round\nconst TMAXW = CFG.title_max_words || 5;\nconst productLine = d => { const s = d.shortDish || ''; const p = String(CFG.product_prefix || '').trim(); return p && !s.toLocaleLowerCase(LOC).startsWith(p.toLocaleLowerCase(LOC)) ? p + ' ' + s : s; };\nconst jevQuestions = (kind) => {\n  const q = {\n    dish_match: {type: 'noul', instructions: 'The white headline (title) and the caption are Instagram copy for the restaurant dish named in \"dish\". Do they describe that dish (as presented in \"presentation\") and not a different food?', criteria: {true: 'Text is about the named dish', false: 'Text describes a different dish or contradicts the named dish'}},\n    title_grammar: {type: 'score', instructions: 'Rate the ' + LANG + ' grammar and naturalness of the title (a short headline, max ' + TMAXW + ' words). A headline may be a noun phrase, but it must be complete and idiomatic; a dangling or cut-off ending, a wrong inflection or an odd word combination counts as broken.', criteria: ['broken or incomplete ' + LANG, 'awkward or unnatural', 'correct but plain', 'natural, fluent ' + LANG]},\n    title_focus: {type: 'noul', instructions: 'Is the title mainly about the main dish itself (its taste, texture, cooking, freshness or appetite appeal) rather than mainly about a side item, garnish, pickle, drink, plate or camera angle?', criteria: {true: 'Focused on the main dish', false: 'Mainly about a side item, garnish, prop or the photo itself'}},\n    title_appeal: {type: 'score', instructions: 'How appetizing and specific is the title as a food advertising headline for ' + (CFG.brand_context || 'a restaurant') + '?', criteria: ['generic or dull', 'acceptable', 'appetizing', 'very appetizing and specific']},\n    main_issue: {type: 'choice', instructions: 'What is the single most important problem with this copy?', criteria: {\n      none: 'No real problem, ready to publish',\n      grammar: LANG + ' grammar/spelling error or unnatural wording',\n      incomplete_title: 'Title is an incomplete or dangling phrase',\n      off_focus: 'Title focuses on a side item, garnish or prop instead of the dish',\n      ungrounded: 'Mentions a food or detail not listed in visible_in_photo',\n      cliche: 'Generic cliché advertising phrases',\n      dish_mismatch: 'Describes a different dish than the named one',\n      repeats_dish: 'Title repeats the dish name, which is already printed on the product line below it'}}\n  };\n  if (kind === 'post') {\n    q.caption_grammar = {type: 'score', instructions: 'Rate the ' + LANG + ' grammar and naturalness of the caption.', criteria: ['broken ' + LANG, 'awkward or unnatural', 'correct but plain', 'natural, fluent ' + LANG]};\n    q.caption_grounded = {type: 'noul', instructions: 'Is every specific food, side dish, drink, sauce or serving detail mentioned in the caption supported by the visible_in_photo list or presentation (synonyms allowed)?', criteria: {true: 'Everything mentioned is visible', false: 'Mentions something that is not in the visible list'}};\n    q.caption_appeal = {type: 'score', instructions: 'How appetizing and engaging is the caption for Instagram food marketing? Listing plates, bowls or cups is dull; vivid, specific description of the dish is good.', criteria: ['dull or list-like', 'acceptable', 'appetizing', 'very appetizing and vivid']};\n  }\n  return q;\n};\nconst jevBody = (d, c) => {\n  const s = {brand: CFG.brand_name + ' - ' + (CFG.brand_context || 'a restaurant') + ' (Instagram account)', format: d.kind === 'post' ? 'feed post' : 'story (only the title is shown, no caption)',\n    dish: d.dish, presentation: d.scene || '', visible_in_photo: d.visible || [],\n    layout: 'The title is printed in white on the photo; directly below it the product line \"' + productLine(d) + '\" is printed in the accent colour.', title: c.redTitle};\n  if (d.kind === 'post') s.caption = c.caption; else s.caption_for_context_only = c.caption;\n  return {model: JEV_MODEL, state: s, questions: jevQuestions(d.kind)};\n};\nconst PING = {model: JEV_MODEL, state: 'connectivity check', questions: {ok: {type: 'noul', instructions: 'Is this a connectivity check?', criteria: {true: 'yes', false: 'no'}}}};\n// Jev diagnoses -> revision instructions for the writer model\nconst DIRECTIVES = {\n  grammar: 'There is a ' + LANG + ' grammar or naturalness problem; use fluent, natural ' + LANG + '.',\n  incomplete_title: 'The headline is an unfinished phrase; write a complete headline that makes sense on its own (no dangling endings).',\n  off_focus: 'The headline is about a garnish, side item, plate or camera angle instead of the main dish; make it describe the taste, texture, cooking or appetite appeal of the main dish itself.',\n  ungrounded: 'Something is mentioned that is not visible in the photo; only use items from the visible list.',\n  cliche: 'The wording is generic, clichéd advertising language; use a specific, concrete and fresh phrase for this dish.',\n  dish_mismatch: 'The text describes a different dish; describe only the named dish.',\n  repeats_dish: 'The headline repeats the dish name; the dish name is already printed below it, so do not use it in the headline.',\n  appeal: 'The headline is not appetizing or specific enough; lead with the most attractive visible quality of the dish.',\n  caption_grammar: 'The caption is grammatically broken or unnatural; write two short, fluent, natural sentences.',\n  caption_appeal: 'The caption reads like a list or is flat; instead of listing serving items, describe the dish vividly and appetizingly.',\n  title_grammar: 'The headline is grammatically broken or artificial; write a natural ' + LANG + ' headline.'\n};\nconst LABELS = {dish_mismatch: 'dish mismatch', title_grammar: 'broken headline language', caption_grammar: 'broken caption language', ungrounded: 'detail not in photo',\n  off_focus: 'headline not about the dish', appeal: 'flat headline', caption_appeal: 'flat caption', grammar: 'grammar', incomplete_title: 'unfinished headline',\n  cliche: 'cliché', repeats_dish: 'repeats dish name'};\n// Weighted quality score (0..1) + hard gates. main_issue is only a revision hint, never a gate:\n// in testing it always picked *some* issue (usually \"cliche\"), even for good copy.\nconst evaluate = (kind, A) => {\n  const g = (k, f) => A[k] ? A[k][f] : null;\n  const r = {dish: g('dish_match', 'noul'), tg: g('title_grammar', 'score'), tf: g('title_focus', 'noul'), ta: g('title_appeal', 'score'),\n    issue: g('main_issue', 'choice'), issueP: A.main_issue && A.main_issue.probabilities ? (A.main_issue.probabilities[A.main_issue.choice] || 0) : 0,\n    cg: g('caption_grammar', 'score'), gr: g('caption_grounded', 'noul'), ca: g('caption_appeal', 'score')};\n  const gates = [];\n  if (r.dish < 0.5) gates.push('dish_mismatch');\n  if (r.tg < 1.5) gates.push('title_grammar');\n  if (kind === 'post') { if (r.cg < 1.5) gates.push('caption_grammar'); if (r.gr < 0.35) gates.push('ungrounded'); }\n  const q = kind === 'post'\n    ? 0.25 * r.tf + 0.25 * r.ta / 3 + 0.15 * r.tg / 3 + 0.15 * r.cg / 3 + 0.10 * r.gr + 0.10 * r.ca / 3\n    : 0.35 * r.tf + 0.40 * r.ta / 3 + 0.25 * r.tg / 3;\n  const diag = new Set();\n  if (r.tg < 2) diag.add('title_grammar');\n  if (r.tf < 0.5) diag.add('off_focus');\n  if (r.ta < 1.5) diag.add('appeal');\n  if (kind === 'post') { if (r.cg < 2) diag.add('caption_grammar'); if (r.gr < 0.5) diag.add('ungrounded'); if (r.ca < 1.5) diag.add('caption_appeal'); }\n  if (r.dish < 0.5) diag.add('dish_mismatch');\n  if (r.issue && r.issue !== 'none' && r.issueP >= 0.5 && DIRECTIVES[r.issue]) diag.add(r.issue);\n  return {...r, q: Math.round(q * 1000) / 1000, gates, ok: gates.length === 0, diag: [...diag]};\n};\nconst revisionPrompt = (d, rated, fails) => {\n  const lines = [];\n  rated.forEach((c, i) => {\n    const probs = (c.diag || []).map(x => DIRECTIVES[x]).filter(Boolean).join(' ') || 'no clear problem';\n    lines.push((i + 1) + ') Headline: \"' + c.redTitle + '\" | Caption: \"' + c.caption + '\" | Quality score: ' + (c.q == null ? '?' : Math.round(c.q * 100)) + '/100 | Problems: ' + probs);\n  });\n  (fails || []).forEach(c => lines.push('- Candidate rejected by the rules: \"' + c.redTitle + '\" / \"' + c.caption + '\" -> ' + c.fail));\n  const banned = (CFG.banned_phrases || []).join(', ');\n  return 'Copy candidates written for an Instagram ' + (d.kind === 'post' ? 'feed post' : 'story') + ' of ' + CFG.brand_name + ' (' + (CFG.brand_context || 'a restaurant') + ') went through an independent quality review. ' +\n    'Dish: ' + d.dish + '. Presentation: ' + (d.scene || '-') + ' Visible in the photo: ' + ((d.visible || []).join(', ') || '-') + '. Tone focus: ' + d.angle + '.\\n' +\n    'Review results:\\n' + (lines.join('\\n') || '(no valid candidate)') + '\\n' +\n    'Fix these problems and write THREE NEW, CLEARLY DIFFERENT alternatives in ' + LANG + '. Keep the strengths of the highest-scoring candidate. ' +\n    'redTitle: the white headline, at most ' + TMAXW + ' words and ' + (CFG.title_max_chars || 44) + ' characters, a complete phrase about the main dish itself, appetizing, WITHOUT the dish name (it is printed separately below it), sentence case, no trailing period. ' +\n    'caption: 1-2 short natural sentences, at least 40 characters, mentioning the dish name (\"' + d.shortDish.toLocaleLowerCase(LOC) + '\") naturally inside a sentence, using only details from the visible list and not listing serving items such as plates, bowls or glasses. ' +\n    (banned ? 'Do not use these words or phrases: ' + banned + '. ' : '') + 'No prices, promotions, opening hours, addresses, emoji or hashtags. ' +\n    'Write JSON only: {\"options\":[{\"redTitle\":\"...\",\"caption\":\"...\"},{\"redTitle\":\"...\",\"caption\":\"...\"},{\"redTitle\":\"...\",\"caption\":\"...\"}]}';\n};\n\nconst d = $('Validate Analysis').first().json;\nconst reqs = $('Jev Questions').all();\nconst res = $input.all();\nlet ok = 0, err = 0; const rated = [];\nreqs.forEach((r, k) => {\n  const idx = r.json.idx; if (idx < 0) return;\n  const a = res[k] && res[k].json && res[k].json.answers;\n  const c = d.candidates[idx];\n  if (a) { ok++; rated.push({...c, ...evaluate(d.kind, a)}); }\n  // Jev unreachable/disabled: the candidate is not dropped (it already passed the rules) -> old behaviour\n  else { err++; rated.push({...c, q: null, ok: true, gates: [], diag: []}); }\n});\nconst score = c => c.q == null ? 0.5 : c.q;\nconst eligible = rated.filter(c => c.ok).sort((a, b) => score(b) - score(a));\nconst best = eligible[0];\nlet jevStatus = ok ? (err ? 'partial' : 'ok') : (rated.length ? 'unreachable' : 'no candidates');\nif (!JEV_ON && rated.length) jevStatus = 'disabled';\nconst decision = best && (best.q == null || best.q >= Q_OK) ? 'publish' : 'revise';\nreturn [{json: {...d, decision, revised: false, rated, chosen: decision === 'publish' ? best : null, jevStatus,\n  revisionPrompt: decision === 'revise' ? revisionPrompt(d, rated, d.codeFails) : ''}}];\n"
+      },
+      "id": "24071763-dfbb-4dc1-ad8c-2b198f32dc00",
+      "name": "Copy Decision",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2200,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "a8aa6de4-d452-4370-9b9a-2958912a7a97",
+              "leftValue": "={{ $json.decision }}",
+              "rightValue": "revise",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "59c1b77b-2abb-44f0-b9b9-b6327b96de6b",
+      "name": "Needs Revision?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        2420,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ 'https://generativelanguage.googleapis.com/v1beta/models/' + $('Config').first().json.model_flash + ':generateContent' }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googlePalmApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { contents: [{ parts: [{ text: $json.revisionPrompt }] }], generationConfig: { responseMimeType: 'application/json', temperature: 0.9 } } }}",
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "id": "ca16544a-eca3-4c49-a9de-5fbd6dfc5806",
+      "name": "Gemini: Write Revision",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        2640,
+        300
+      ],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 3000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const CFG = $('Config').first().json;\nconst LOC = CFG.locale || 'en-US';\nconst LANG = CFG.language || 'English';\n// ---- Jev (TypeSafe) shared definitions: a typed decision model. It never writes text and never sees images. ----\nconst JEV_MODEL = CFG.jev_model || 'typesafe/jev-1.13';\nconst JEV_ON = CFG.jev_enabled !== false;\nconst Q_OK = Number(CFG.jev_min_score) || 0.80; // best candidate below this score triggers one revision round\nconst TMAXW = CFG.title_max_words || 5;\nconst productLine = d => { const s = d.shortDish || ''; const p = String(CFG.product_prefix || '').trim(); return p && !s.toLocaleLowerCase(LOC).startsWith(p.toLocaleLowerCase(LOC)) ? p + ' ' + s : s; };\nconst jevQuestions = (kind) => {\n  const q = {\n    dish_match: {type: 'noul', instructions: 'The white headline (title) and the caption are Instagram copy for the restaurant dish named in \"dish\". Do they describe that dish (as presented in \"presentation\") and not a different food?', criteria: {true: 'Text is about the named dish', false: 'Text describes a different dish or contradicts the named dish'}},\n    title_grammar: {type: 'score', instructions: 'Rate the ' + LANG + ' grammar and naturalness of the title (a short headline, max ' + TMAXW + ' words). A headline may be a noun phrase, but it must be complete and idiomatic; a dangling or cut-off ending, a wrong inflection or an odd word combination counts as broken.', criteria: ['broken or incomplete ' + LANG, 'awkward or unnatural', 'correct but plain', 'natural, fluent ' + LANG]},\n    title_focus: {type: 'noul', instructions: 'Is the title mainly about the main dish itself (its taste, texture, cooking, freshness or appetite appeal) rather than mainly about a side item, garnish, pickle, drink, plate or camera angle?', criteria: {true: 'Focused on the main dish', false: 'Mainly about a side item, garnish, prop or the photo itself'}},\n    title_appeal: {type: 'score', instructions: 'How appetizing and specific is the title as a food advertising headline for ' + (CFG.brand_context || 'a restaurant') + '?', criteria: ['generic or dull', 'acceptable', 'appetizing', 'very appetizing and specific']},\n    main_issue: {type: 'choice', instructions: 'What is the single most important problem with this copy?', criteria: {\n      none: 'No real problem, ready to publish',\n      grammar: LANG + ' grammar/spelling error or unnatural wording',\n      incomplete_title: 'Title is an incomplete or dangling phrase',\n      off_focus: 'Title focuses on a side item, garnish or prop instead of the dish',\n      ungrounded: 'Mentions a food or detail not listed in visible_in_photo',\n      cliche: 'Generic cliché advertising phrases',\n      dish_mismatch: 'Describes a different dish than the named one',\n      repeats_dish: 'Title repeats the dish name, which is already printed on the product line below it'}}\n  };\n  if (kind === 'post') {\n    q.caption_grammar = {type: 'score', instructions: 'Rate the ' + LANG + ' grammar and naturalness of the caption.', criteria: ['broken ' + LANG, 'awkward or unnatural', 'correct but plain', 'natural, fluent ' + LANG]};\n    q.caption_grounded = {type: 'noul', instructions: 'Is every specific food, side dish, drink, sauce or serving detail mentioned in the caption supported by the visible_in_photo list or presentation (synonyms allowed)?', criteria: {true: 'Everything mentioned is visible', false: 'Mentions something that is not in the visible list'}};\n    q.caption_appeal = {type: 'score', instructions: 'How appetizing and engaging is the caption for Instagram food marketing? Listing plates, bowls or cups is dull; vivid, specific description of the dish is good.', criteria: ['dull or list-like', 'acceptable', 'appetizing', 'very appetizing and vivid']};\n  }\n  return q;\n};\nconst jevBody = (d, c) => {\n  const s = {brand: CFG.brand_name + ' - ' + (CFG.brand_context || 'a restaurant') + ' (Instagram account)', format: d.kind === 'post' ? 'feed post' : 'story (only the title is shown, no caption)',\n    dish: d.dish, presentation: d.scene || '', visible_in_photo: d.visible || [],\n    layout: 'The title is printed in white on the photo; directly below it the product line \"' + productLine(d) + '\" is printed in the accent colour.', title: c.redTitle};\n  if (d.kind === 'post') s.caption = c.caption; else s.caption_for_context_only = c.caption;\n  return {model: JEV_MODEL, state: s, questions: jevQuestions(d.kind)};\n};\nconst PING = {model: JEV_MODEL, state: 'connectivity check', questions: {ok: {type: 'noul', instructions: 'Is this a connectivity check?', criteria: {true: 'yes', false: 'no'}}}};\n// Jev diagnoses -> revision instructions for the writer model\nconst DIRECTIVES = {\n  grammar: 'There is a ' + LANG + ' grammar or naturalness problem; use fluent, natural ' + LANG + '.',\n  incomplete_title: 'The headline is an unfinished phrase; write a complete headline that makes sense on its own (no dangling endings).',\n  off_focus: 'The headline is about a garnish, side item, plate or camera angle instead of the main dish; make it describe the taste, texture, cooking or appetite appeal of the main dish itself.',\n  ungrounded: 'Something is mentioned that is not visible in the photo; only use items from the visible list.',\n  cliche: 'The wording is generic, clichéd advertising language; use a specific, concrete and fresh phrase for this dish.',\n  dish_mismatch: 'The text describes a different dish; describe only the named dish.',\n  repeats_dish: 'The headline repeats the dish name; the dish name is already printed below it, so do not use it in the headline.',\n  appeal: 'The headline is not appetizing or specific enough; lead with the most attractive visible quality of the dish.',\n  caption_grammar: 'The caption is grammatically broken or unnatural; write two short, fluent, natural sentences.',\n  caption_appeal: 'The caption reads like a list or is flat; instead of listing serving items, describe the dish vividly and appetizingly.',\n  title_grammar: 'The headline is grammatically broken or artificial; write a natural ' + LANG + ' headline.'\n};\nconst LABELS = {dish_mismatch: 'dish mismatch', title_grammar: 'broken headline language', caption_grammar: 'broken caption language', ungrounded: 'detail not in photo',\n  off_focus: 'headline not about the dish', appeal: 'flat headline', caption_appeal: 'flat caption', grammar: 'grammar', incomplete_title: 'unfinished headline',\n  cliche: 'cliché', repeats_dish: 'repeats dish name'};\n// Weighted quality score (0..1) + hard gates. main_issue is only a revision hint, never a gate:\n// in testing it always picked *some* issue (usually \"cliche\"), even for good copy.\nconst evaluate = (kind, A) => {\n  const g = (k, f) => A[k] ? A[k][f] : null;\n  const r = {dish: g('dish_match', 'noul'), tg: g('title_grammar', 'score'), tf: g('title_focus', 'noul'), ta: g('title_appeal', 'score'),\n    issue: g('main_issue', 'choice'), issueP: A.main_issue && A.main_issue.probabilities ? (A.main_issue.probabilities[A.main_issue.choice] || 0) : 0,\n    cg: g('caption_grammar', 'score'), gr: g('caption_grounded', 'noul'), ca: g('caption_appeal', 'score')};\n  const gates = [];\n  if (r.dish < 0.5) gates.push('dish_mismatch');\n  if (r.tg < 1.5) gates.push('title_grammar');\n  if (kind === 'post') { if (r.cg < 1.5) gates.push('caption_grammar'); if (r.gr < 0.35) gates.push('ungrounded'); }\n  const q = kind === 'post'\n    ? 0.25 * r.tf + 0.25 * r.ta / 3 + 0.15 * r.tg / 3 + 0.15 * r.cg / 3 + 0.10 * r.gr + 0.10 * r.ca / 3\n    : 0.35 * r.tf + 0.40 * r.ta / 3 + 0.25 * r.tg / 3;\n  const diag = new Set();\n  if (r.tg < 2) diag.add('title_grammar');\n  if (r.tf < 0.5) diag.add('off_focus');\n  if (r.ta < 1.5) diag.add('appeal');\n  if (kind === 'post') { if (r.cg < 2) diag.add('caption_grammar'); if (r.gr < 0.5) diag.add('ungrounded'); if (r.ca < 1.5) diag.add('caption_appeal'); }\n  if (r.dish < 0.5) diag.add('dish_mismatch');\n  if (r.issue && r.issue !== 'none' && r.issueP >= 0.5 && DIRECTIVES[r.issue]) diag.add(r.issue);\n  return {...r, q: Math.round(q * 1000) / 1000, gates, ok: gates.length === 0, diag: [...diag]};\n};\nconst revisionPrompt = (d, rated, fails) => {\n  const lines = [];\n  rated.forEach((c, i) => {\n    const probs = (c.diag || []).map(x => DIRECTIVES[x]).filter(Boolean).join(' ') || 'no clear problem';\n    lines.push((i + 1) + ') Headline: \"' + c.redTitle + '\" | Caption: \"' + c.caption + '\" | Quality score: ' + (c.q == null ? '?' : Math.round(c.q * 100)) + '/100 | Problems: ' + probs);\n  });\n  (fails || []).forEach(c => lines.push('- Candidate rejected by the rules: \"' + c.redTitle + '\" / \"' + c.caption + '\" -> ' + c.fail));\n  const banned = (CFG.banned_phrases || []).join(', ');\n  return 'Copy candidates written for an Instagram ' + (d.kind === 'post' ? 'feed post' : 'story') + ' of ' + CFG.brand_name + ' (' + (CFG.brand_context || 'a restaurant') + ') went through an independent quality review. ' +\n    'Dish: ' + d.dish + '. Presentation: ' + (d.scene || '-') + ' Visible in the photo: ' + ((d.visible || []).join(', ') || '-') + '. Tone focus: ' + d.angle + '.\\n' +\n    'Review results:\\n' + (lines.join('\\n') || '(no valid candidate)') + '\\n' +\n    'Fix these problems and write THREE NEW, CLEARLY DIFFERENT alternatives in ' + LANG + '. Keep the strengths of the highest-scoring candidate. ' +\n    'redTitle: the white headline, at most ' + TMAXW + ' words and ' + (CFG.title_max_chars || 44) + ' characters, a complete phrase about the main dish itself, appetizing, WITHOUT the dish name (it is printed separately below it), sentence case, no trailing period. ' +\n    'caption: 1-2 short natural sentences, at least 40 characters, mentioning the dish name (\"' + d.shortDish.toLocaleLowerCase(LOC) + '\") naturally inside a sentence, using only details from the visible list and not listing serving items such as plates, bowls or glasses. ' +\n    (banned ? 'Do not use these words or phrases: ' + banned + '. ' : '') + 'No prices, promotions, opening hours, addresses, emoji or hashtags. ' +\n    'Write JSON only: {\"options\":[{\"redTitle\":\"...\",\"caption\":\"...\"},{\"redTitle\":\"...\",\"caption\":\"...\"},{\"redTitle\":\"...\",\"caption\":\"...\"}]}';\n};\n// ---- Rule-based copy checks (deterministic, run before the judge) ----\nconst norm = s => String(s || '').trim().toLocaleLowerCase(LOC);\nconst clean = s => String(s || '').replace(/[\\r\\n\\t]+/g, ' ').replace(/\\s+/g, ' ').trim();\nconst reEsc = s => String(s).replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&');\n// Unicode-aware word boundaries (JavaScript's \\b only knows ASCII letters)\nconst phraseRe = list => { const l = (list || []).filter(Boolean); return l.length ? new RegExp('(?<![\\\\p{L}\\\\p{N}])(?:' + l.map(reEsc).join('|') + ')(?![\\\\p{L}\\\\p{N}])', 'iu') : null; };\nconst prohibited = CFG.prohibited_pattern ? new RegExp(CFG.prohibited_pattern, 'iu') : null; // prices, promotions, times...\nconst cliche = phraseRe(CFG.banned_phrases);\nconst TITLE_MAX_WORDS = CFG.title_max_words || 5, TITLE_MAX_CHARS = CFG.title_max_chars || 44;\n// Name the reason a candidate was dropped: it is stored in the ledger and shown in the email\nconst why = (c, t, shortDish, recentCaps) => {\n  if (!c) return 'caption empty';\n  if (c.length < 35) return 'caption too short';\n  if (c.length > 350) return 'caption too long';\n  if (!norm(c).includes(norm(shortDish))) return 'dish name missing from caption';\n  if (!t) return 'headline empty';\n  if (t.length > TITLE_MAX_CHARS) return 'headline too long';\n  if (t.split(/\\s+/).length > TITLE_MAX_WORDS) return 'headline has more than ' + TITLE_MAX_WORDS + ' words';\n  // The dish name is already printed on the product line right below the headline\n  if (norm(t).includes(norm(shortDish))) return 'headline repeats the dish name';\n  if (prohibited && prohibited.test(c + ' ' + t)) return 'prohibited phrase (price/promotion etc.)';\n  if (cliche && cliche.test(c + ' ' + t)) return 'banned cliché';\n  if (recentCaps.includes(norm(c))) return 'repeats a recent caption';\n  return '';\n};\nconst normalizeCand = (o, dish, shortDish) => ({\n  redTitle: clean(o && o.redTitle).replace(/[.!…]+$/, ''),\n  caption: clean(o && o.caption).split(dish).join(shortDish)\n});\nconst geminiText = j => { try { return (j.candidates[0].content.parts || []).filter(p => !p.thought).map(p => p.text || '').join(''); } catch (e) { return ''; } };\nconst parseJson = t => { try { return JSON.parse(String(t || '').replace(/```(?:json)?/gi, '').trim()); } catch (e) { return null; } };\n\nconst fs = require('fs');\nconst d = $('Copy Decision').first().json;\nconst ai = parseJson(geminiText($json)) || {};\nconst ledger = JSON.parse(fs.readFileSync(CFG.data_dir + '/state/ledger.json', 'utf8'));\nconst recentCaps = ledger.entries.filter(e => e.status === 'published').slice(-5).map(e => norm(e.caption));\nconst fresh = [], fails = [];\n(Array.isArray(ai.options) ? ai.options : []).forEach((o, i) => {\n  const c = normalizeCand(o, d.dish, d.shortDish);\n  const w = why(c.caption, c.redTitle, d.shortDish, recentCaps);\n  if (w) fails.push({...c, round: 2, fail: w}); else fresh.push({...c, round: 2, id: '2.' + (i + 1)});\n});\nconst items = fresh.map((c, i) => ({json: {idx: i, cand: c, body: jevBody(d, c)}}));\nif (!items.length) items.push({json: {idx: -1, cand: null, body: PING}});\nitems[0].json.meta = {codeFails2: fails, geminiOk: Array.isArray(ai.options)};\nreturn items;\n"
+      },
+      "id": "160ffff3-c0f9-4655-9524-2c1ae26387ae",
+      "name": "Revision Questions",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2860,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "80aaf681-cd0e-4589-8cb9-23ccbd9eb491",
+              "leftValue": "={{ $('Config').first().json.jev_enabled }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "f9991b8a-50f8-47b1-8ff2-d60e4563c9a9",
+      "name": "Jev On? (Revision)",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        3080,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/alpha/decisions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.body }}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "d9bc764a-3091-4325-b7fd-1290b3618ce6",
+      "name": "Jev: Score Revision",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        3300,
+        200
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const CFG = $('Config').first().json;\nconst LOC = CFG.locale || 'en-US';\nconst LANG = CFG.language || 'English';\n// ---- Jev (TypeSafe) shared definitions: a typed decision model. It never writes text and never sees images. ----\nconst JEV_MODEL = CFG.jev_model || 'typesafe/jev-1.13';\nconst JEV_ON = CFG.jev_enabled !== false;\nconst Q_OK = Number(CFG.jev_min_score) || 0.80; // best candidate below this score triggers one revision round\nconst TMAXW = CFG.title_max_words || 5;\nconst productLine = d => { const s = d.shortDish || ''; const p = String(CFG.product_prefix || '').trim(); return p && !s.toLocaleLowerCase(LOC).startsWith(p.toLocaleLowerCase(LOC)) ? p + ' ' + s : s; };\nconst jevQuestions = (kind) => {\n  const q = {\n    dish_match: {type: 'noul', instructions: 'The white headline (title) and the caption are Instagram copy for the restaurant dish named in \"dish\". Do they describe that dish (as presented in \"presentation\") and not a different food?', criteria: {true: 'Text is about the named dish', false: 'Text describes a different dish or contradicts the named dish'}},\n    title_grammar: {type: 'score', instructions: 'Rate the ' + LANG + ' grammar and naturalness of the title (a short headline, max ' + TMAXW + ' words). A headline may be a noun phrase, but it must be complete and idiomatic; a dangling or cut-off ending, a wrong inflection or an odd word combination counts as broken.', criteria: ['broken or incomplete ' + LANG, 'awkward or unnatural', 'correct but plain', 'natural, fluent ' + LANG]},\n    title_focus: {type: 'noul', instructions: 'Is the title mainly about the main dish itself (its taste, texture, cooking, freshness or appetite appeal) rather than mainly about a side item, garnish, pickle, drink, plate or camera angle?', criteria: {true: 'Focused on the main dish', false: 'Mainly about a side item, garnish, prop or the photo itself'}},\n    title_appeal: {type: 'score', instructions: 'How appetizing and specific is the title as a food advertising headline for ' + (CFG.brand_context || 'a restaurant') + '?', criteria: ['generic or dull', 'acceptable', 'appetizing', 'very appetizing and specific']},\n    main_issue: {type: 'choice', instructions: 'What is the single most important problem with this copy?', criteria: {\n      none: 'No real problem, ready to publish',\n      grammar: LANG + ' grammar/spelling error or unnatural wording',\n      incomplete_title: 'Title is an incomplete or dangling phrase',\n      off_focus: 'Title focuses on a side item, garnish or prop instead of the dish',\n      ungrounded: 'Mentions a food or detail not listed in visible_in_photo',\n      cliche: 'Generic cliché advertising phrases',\n      dish_mismatch: 'Describes a different dish than the named one',\n      repeats_dish: 'Title repeats the dish name, which is already printed on the product line below it'}}\n  };\n  if (kind === 'post') {\n    q.caption_grammar = {type: 'score', instructions: 'Rate the ' + LANG + ' grammar and naturalness of the caption.', criteria: ['broken ' + LANG, 'awkward or unnatural', 'correct but plain', 'natural, fluent ' + LANG]};\n    q.caption_grounded = {type: 'noul', instructions: 'Is every specific food, side dish, drink, sauce or serving detail mentioned in the caption supported by the visible_in_photo list or presentation (synonyms allowed)?', criteria: {true: 'Everything mentioned is visible', false: 'Mentions something that is not in the visible list'}};\n    q.caption_appeal = {type: 'score', instructions: 'How appetizing and engaging is the caption for Instagram food marketing? Listing plates, bowls or cups is dull; vivid, specific description of the dish is good.', criteria: ['dull or list-like', 'acceptable', 'appetizing', 'very appetizing and vivid']};\n  }\n  return q;\n};\nconst jevBody = (d, c) => {\n  const s = {brand: CFG.brand_name + ' - ' + (CFG.brand_context || 'a restaurant') + ' (Instagram account)', format: d.kind === 'post' ? 'feed post' : 'story (only the title is shown, no caption)',\n    dish: d.dish, presentation: d.scene || '', visible_in_photo: d.visible || [],\n    layout: 'The title is printed in white on the photo; directly below it the product line \"' + productLine(d) + '\" is printed in the accent colour.', title: c.redTitle};\n  if (d.kind === 'post') s.caption = c.caption; else s.caption_for_context_only = c.caption;\n  return {model: JEV_MODEL, state: s, questions: jevQuestions(d.kind)};\n};\nconst PING = {model: JEV_MODEL, state: 'connectivity check', questions: {ok: {type: 'noul', instructions: 'Is this a connectivity check?', criteria: {true: 'yes', false: 'no'}}}};\n// Jev diagnoses -> revision instructions for the writer model\nconst DIRECTIVES = {\n  grammar: 'There is a ' + LANG + ' grammar or naturalness problem; use fluent, natural ' + LANG + '.',\n  incomplete_title: 'The headline is an unfinished phrase; write a complete headline that makes sense on its own (no dangling endings).',\n  off_focus: 'The headline is about a garnish, side item, plate or camera angle instead of the main dish; make it describe the taste, texture, cooking or appetite appeal of the main dish itself.',\n  ungrounded: 'Something is mentioned that is not visible in the photo; only use items from the visible list.',\n  cliche: 'The wording is generic, clichéd advertising language; use a specific, concrete and fresh phrase for this dish.',\n  dish_mismatch: 'The text describes a different dish; describe only the named dish.',\n  repeats_dish: 'The headline repeats the dish name; the dish name is already printed below it, so do not use it in the headline.',\n  appeal: 'The headline is not appetizing or specific enough; lead with the most attractive visible quality of the dish.',\n  caption_grammar: 'The caption is grammatically broken or unnatural; write two short, fluent, natural sentences.',\n  caption_appeal: 'The caption reads like a list or is flat; instead of listing serving items, describe the dish vividly and appetizingly.',\n  title_grammar: 'The headline is grammatically broken or artificial; write a natural ' + LANG + ' headline.'\n};\nconst LABELS = {dish_mismatch: 'dish mismatch', title_grammar: 'broken headline language', caption_grammar: 'broken caption language', ungrounded: 'detail not in photo',\n  off_focus: 'headline not about the dish', appeal: 'flat headline', caption_appeal: 'flat caption', grammar: 'grammar', incomplete_title: 'unfinished headline',\n  cliche: 'cliché', repeats_dish: 'repeats dish name'};\n// Weighted quality score (0..1) + hard gates. main_issue is only a revision hint, never a gate:\n// in testing it always picked *some* issue (usually \"cliche\"), even for good copy.\nconst evaluate = (kind, A) => {\n  const g = (k, f) => A[k] ? A[k][f] : null;\n  const r = {dish: g('dish_match', 'noul'), tg: g('title_grammar', 'score'), tf: g('title_focus', 'noul'), ta: g('title_appeal', 'score'),\n    issue: g('main_issue', 'choice'), issueP: A.main_issue && A.main_issue.probabilities ? (A.main_issue.probabilities[A.main_issue.choice] || 0) : 0,\n    cg: g('caption_grammar', 'score'), gr: g('caption_grounded', 'noul'), ca: g('caption_appeal', 'score')};\n  const gates = [];\n  if (r.dish < 0.5) gates.push('dish_mismatch');\n  if (r.tg < 1.5) gates.push('title_grammar');\n  if (kind === 'post') { if (r.cg < 1.5) gates.push('caption_grammar'); if (r.gr < 0.35) gates.push('ungrounded'); }\n  const q = kind === 'post'\n    ? 0.25 * r.tf + 0.25 * r.ta / 3 + 0.15 * r.tg / 3 + 0.15 * r.cg / 3 + 0.10 * r.gr + 0.10 * r.ca / 3\n    : 0.35 * r.tf + 0.40 * r.ta / 3 + 0.25 * r.tg / 3;\n  const diag = new Set();\n  if (r.tg < 2) diag.add('title_grammar');\n  if (r.tf < 0.5) diag.add('off_focus');\n  if (r.ta < 1.5) diag.add('appeal');\n  if (kind === 'post') { if (r.cg < 2) diag.add('caption_grammar'); if (r.gr < 0.5) diag.add('ungrounded'); if (r.ca < 1.5) diag.add('caption_appeal'); }\n  if (r.dish < 0.5) diag.add('dish_mismatch');\n  if (r.issue && r.issue !== 'none' && r.issueP >= 0.5 && DIRECTIVES[r.issue]) diag.add(r.issue);\n  return {...r, q: Math.round(q * 1000) / 1000, gates, ok: gates.length === 0, diag: [...diag]};\n};\nconst revisionPrompt = (d, rated, fails) => {\n  const lines = [];\n  rated.forEach((c, i) => {\n    const probs = (c.diag || []).map(x => DIRECTIVES[x]).filter(Boolean).join(' ') || 'no clear problem';\n    lines.push((i + 1) + ') Headline: \"' + c.redTitle + '\" | Caption: \"' + c.caption + '\" | Quality score: ' + (c.q == null ? '?' : Math.round(c.q * 100)) + '/100 | Problems: ' + probs);\n  });\n  (fails || []).forEach(c => lines.push('- Candidate rejected by the rules: \"' + c.redTitle + '\" / \"' + c.caption + '\" -> ' + c.fail));\n  const banned = (CFG.banned_phrases || []).join(', ');\n  return 'Copy candidates written for an Instagram ' + (d.kind === 'post' ? 'feed post' : 'story') + ' of ' + CFG.brand_name + ' (' + (CFG.brand_context || 'a restaurant') + ') went through an independent quality review. ' +\n    'Dish: ' + d.dish + '. Presentation: ' + (d.scene || '-') + ' Visible in the photo: ' + ((d.visible || []).join(', ') || '-') + '. Tone focus: ' + d.angle + '.\\n' +\n    'Review results:\\n' + (lines.join('\\n') || '(no valid candidate)') + '\\n' +\n    'Fix these problems and write THREE NEW, CLEARLY DIFFERENT alternatives in ' + LANG + '. Keep the strengths of the highest-scoring candidate. ' +\n    'redTitle: the white headline, at most ' + TMAXW + ' words and ' + (CFG.title_max_chars || 44) + ' characters, a complete phrase about the main dish itself, appetizing, WITHOUT the dish name (it is printed separately below it), sentence case, no trailing period. ' +\n    'caption: 1-2 short natural sentences, at least 40 characters, mentioning the dish name (\"' + d.shortDish.toLocaleLowerCase(LOC) + '\") naturally inside a sentence, using only details from the visible list and not listing serving items such as plates, bowls or glasses. ' +\n    (banned ? 'Do not use these words or phrases: ' + banned + '. ' : '') + 'No prices, promotions, opening hours, addresses, emoji or hashtags. ' +\n    'Write JSON only: {\"options\":[{\"redTitle\":\"...\",\"caption\":\"...\"},{\"redTitle\":\"...\",\"caption\":\"...\"},{\"redTitle\":\"...\",\"caption\":\"...\"}]}';\n};\n\nconst fs = require('fs');\nconst d = $('Copy Decision').first().json;\nconst reqs = $('Revision Questions').all();\nconst res = $input.all();\nconst meta = reqs[0].json.meta || {};\nlet ok = 0, err = 0; const rated2 = [];\nreqs.forEach((r, k) => {\n  if (r.json.idx < 0) return;\n  const a = res[k] && res[k].json && res[k].json.answers;\n  if (a) { ok++; rated2.push({...r.json.cand, ...evaluate(d.kind, a)}); }\n  else { err++; rated2.push({...r.json.cand, q: null, ok: true, gates: [], diag: []}); }\n});\n// Both rounds compete: a revision is not always better than the original\nconst all = [...d.rated, ...rated2];\nconst score = c => c.q == null ? 0.5 : c.q;\nconst best = all.filter(c => c.ok).sort((a, b) => score(b) - score(a))[0];\nconst codeFails = [...(d.codeFails || []), ...(meta.codeFails2 || [])];\nlet jevStatus2 = ok ? (err ? 'partial' : 'ok') : (rated2.length ? 'unreachable' : 'no candidates');\nif (!JEV_ON && rated2.length) jevStatus2 = 'disabled';\nconst out = {...d, rated: all, codeFails, revised: true, geminiRevisionOk: !!meta.geminiOk, jevStatus2};\nif (best) return [{json: {...out, decision: 'publish', chosen: best}}];\n// No candidate passed the gates: nothing is published, the photo goes to review\nconst reasons = [...new Set(all.flatMap(c => c.gates || []).map(g => LABELS[g] || g).concat(codeFails.map(c => c.fail)))].join(', ') || 'no valid copy was produced';\nconst reason = 'Copy did not pass the quality review (' + reasons + ')';\nconst path = CFG.data_dir + '/state/ledger.json';\nconst ledger = JSON.parse(fs.readFileSync(path, 'utf8'));\nconst entry = ledger.entries.find(e => e.base === d.base);\nif (entry) { entry.status = 'review'; entry.reason = reason; entry.suggestedDish = d.dish;\n  const tmp = path + '.tmp'; fs.writeFileSync(tmp, JSON.stringify(ledger, null, 2)); fs.renameSync(tmp, path); }\nreturn [{json: {...out, decision: 'review', reviewNeeded: true, reason, sourceFile: d.sourceFile, suggestedDish: d.dish, confidence: d.confidence,\n  reviewPath: CFG.data_dir + '/state/photo_overrides.json'}}];\n"
+      },
+      "id": "de1bc067-58b4-4cdc-8b76-8601221007fc",
+      "name": "Final Copy Decision",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3520,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "cf4279d1-277f-4565-b6a9-7004d79f0201",
+              "leftValue": "={{ $json.decision }}",
+              "rightValue": "publish",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "82f9c391-fe3a-471a-a17c-0d6a653c4f71",
+      "name": "Copy Approved?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        3740,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const fs = require('fs');\nconst CFG = $('Config').first().json;\nconst LOC = CFG.locale || 'en-US';\nconst LANG = CFG.language || 'English';\nconst d = $json; const c = d.chosen;\nconst path = CFG.data_dir + '/state/ledger.json';\nconst ledger = JSON.parse(fs.readFileSync(path, 'utf8'));\nconst entry = ledger.entries.find(e => e.base === d.base);\nif (!entry) throw new Error('Ledger entry not found: ' + d.base);\nentry.status = 'validated'; entry.caption = c.caption; entry.redTitle = c.redTitle;\nentry.textTries = (d.rated || []).length + (d.codeFails || []).length;\nentry.jev = {status: d.jevStatus + (d.revised ? ' / revision: ' + d.jevStatus2 : ''), chosen: c.id, q: c.q, revised: !!d.revised,\n  candidates: (d.rated || []).map(x => ({id: x.id, q: x.q, ok: x.ok, gates: x.gates, diag: x.diag}))};\nconst tmp = path + '.tmp'; fs.writeFileSync(tmp, JSON.stringify(ledger, null, 2)); fs.renameSync(tmp, path);\nreturn [{json: {base: d.base, kind: d.kind, dish: d.dish, caption: c.caption, redTitle: c.redTitle, chosenId: c.id,\n  jevStatus: d.jevStatus, jevStatus2: d.jevStatus2 || '', revised: !!d.revised, rated: d.rated || [], codeFails: d.codeFails || [],\n  sourceFile: d.sourceFile, angle: d.angle, dishSource: d.dishSource}}];\n"
+      },
+      "id": "98780a13-8cd1-4f08-9775-1c110f9bc076",
+      "name": "Save Approved Copy",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3960,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Encodes the photo and builds the AI reframe prompt for today's format.\nconst src = $('Read Photo').first().json;\n// Jev/HTTP nodes sit in between, so the binary is not carried along: read the raw photo from disk\nconst buf = require('fs').readFileSync(src.rawPath);\nconst post = src.kind === 'post';\nconst ar = post ? '4:5' : '9:16';\nconst pct = post ? 34 : 30;   // empty top area reserved for text\nconst cy  = post ? 64 : 66;   // vertical centre of the dish\nconst bot = post ? 8 : 7;     // bottom margin hidden behind the footer box\nconst prompt =\n  'Recompose this real restaurant food photograph into a vertical ' + ar + ' advertising photo. ' +\n  'ABSOLUTE RULE - the dish must stay exactly as photographed: identical food items, identical plate, board or bowl, ' +\n  'identical garnish, identical side dishes, identical ingredients, identical colours and textures. ' +\n  'Never add, remove, replace, duplicate or reshape any food, and never invent a different dish. ' +\n  'Extend the existing scene naturally by outpainting the surrounding table and restaurant background. ' +\n  'COMPOSITION: the top ' + pct + ' percent of the frame must be completely clear - only dark, warm, softly ' +\n  'out-of-focus restaurant background. No food, no plate, no bowl, no glass, no bottle, no cutlery and no bright ' +\n  'highlight may reach into that top area; it is empty negative space reserved for text. ' +\n  'Below that clear area the dish must be LARGE and dominant: it fills the full width of the frame, is shot from ' +\n  'close range, is sharp and appetising, and its centre sits at about ' + cy + ' percent of the frame height. ' +\n  'Keep the very bottom ' + bot + ' percent free of important detail. ' +\n  'Warm moody dark restaurant lighting, professional food photography, shallow depth of field. ' +\n  'Do not render any text, letters, logo or watermark. No people, no hands.';\nreturn [{json: {mimeType: $('Read Photo').first().binary.data.mimeType, base64: buf.toString('base64'), aspectRatio: ar, prompt}}];\n"
+      },
+      "id": "7e8cbe84-85c2-4919-9702-39e126caa57b",
+      "name": "Build Reframe Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        820
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ 'https://generativelanguage.googleapis.com/v1beta/models/' + $('Config').first().json.model_image + ':generateContent' }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googlePalmApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { contents: [{ parts: [{ text: $('Build Reframe Request').first().json.prompt }, { inlineData: { mimeType: $('Build Reframe Request').first().json.mimeType, data: $('Build Reframe Request').first().json.base64 } }] }], generationConfig: { responseModalities: [\"IMAGE\"], imageConfig: { aspectRatio: $('Build Reframe Request').first().json.aspectRatio, imageSize: \"2K\" } } } }}",
+        "options": {
+          "timeout": 300000
+        }
+      },
+      "id": "b66ad37c-2dff-4cb7-9a89-cc826c11de97",
+      "name": "Gemini: AI Reframe",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        660,
+        820
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const fs = require('fs');\nconst CFG = $('Config').first().json;\nconst LOC = CFG.locale || 'en-US';\nconst LANG = CFG.language || 'English';\nconst src = $('Read Photo').first().json;\nconst dir = CFG.data_dir + '/work'; fs.mkdirSync(dir, {recursive: true});\nconst parts = $json.candidates?.[0]?.content?.parts || [];\nconst image = parts.find(p => p.inlineData?.data);\nlet framePath = src.rawPath, frameOk = false;\nif (image) {\n  const ext = (image.inlineData.mimeType || 'image/png').includes('jpeg') ? 'jpg' : 'png';\n  const p = dir + '/' + src.base + '_' + src.kind + '.' + ext;\n  fs.writeFileSync(p, Buffer.from(image.inlineData.data, 'base64'));\n  // A tiny file means a failed generation: fall back to the raw photo\n  if (fs.statSync(p).size > 50000) { framePath = p; frameOk = true; }\n}\nreturn [{json: {framePath, frameOk}}];\n"
+      },
+      "id": "fdd9dbbc-a417-41c4-807b-053349413a50",
+      "name": "Save Reframe",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        820
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "ac2c0568-263c-433d-861f-2a590f0b73b8",
+              "leftValue": "={{ $json.frameOk }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "ff6ff2f4-20a2-4c5d-bc36-f679131e6099",
+      "name": "Reframe Produced?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        820
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Shows the original and the AI reframe side by side to Gemini (small copies); Jev makes the decision.\nconst fs = require('fs'); const {execFile} = require('child_process');\nconst CFG = $('Config').first().json;\nconst LOC = CFG.locale || 'en-US';\nconst LANG = CFG.language || 'English';\nconst src = $('Read Photo').first().json;\nconst k = $json;\nconst post = src.kind === 'post'; const pct = post ? 34 : 30;\nconst small = (inp, out) => new Promise((res, rej) => execFile('gm', ['convert', inp, '-auto-orient', '-resize', '1024x1024>', '-strip', '-quality', '85', out], {timeout: 60000}, (e, o, se) => e ? rej(new Error(se || e.message)) : res()));\nconst dir = CFG.data_dir + '/work';\nconst a = dir + '/' + src.base + '_check_orig.jpg', b = dir + '/' + src.base + '_check_frame.jpg';\nawait small(src.rawPath, a); await small(k.framePath, b);\nconst b64 = p => { const x = fs.readFileSync(p).toString('base64'); fs.unlinkSync(p); return x; };\nconst prompt = 'Image 1 is an original restaurant food photograph. Image 2 is an AI-recomposed version of it made for an Instagram ' + (post ? 'feed post (4:5)' : 'story (9:16)') +\n ' ad; the AI was only allowed to extend the background and reposition the camera framing, never to change the food. ' +\n 'Compare them carefully and report only what you can see. Return JSON only: ' +\n '{\"main_dish_same\":true,\"main_dish_notes\":\"how the main dish in image 2 differs from image 1, or \\\"same\\\"\",' +\n '\"added_food\":[\"food/garnish/drink items present in image 2 but NOT in image 1\"],' +\n '\"removed_food\":[\"food/garnish items from image 1 missing in image 2\"],' +\n '\"top_area_clear\":true,\"top_area_notes\":\"is the top ' + pct + '% of image 2 empty dark background suitable for text? describe anything there\",' +\n '\"text_or_logo_generated\":false,\"people_or_hands\":false,' +\n '\"visual_defects\":[\"distortions, melted or duplicated food, impossible geometry, smeared textures\"],' +\n '\"dish_prominence\":\"large|medium|small\"}. Write notes and list items in English.';\nreturn [{json: {pct, body: {contents: [{parts: [{text: prompt}, {inlineData: {mimeType: 'image/jpeg', data: b64(a)}}, {inlineData: {mimeType: 'image/jpeg', data: b64(b)}}]}],\n  generationConfig: {responseMimeType: 'application/json', temperature: 0.2}}}}];\n"
+      },
+      "id": "179b02e0-57af-4f54-ac34-abb5eec76eab",
+      "name": "Build Reframe Check",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1320,
+        660
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ 'https://generativelanguage.googleapis.com/v1beta/models/' + $('Config').first().json.model_flash + ':generateContent' }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googlePalmApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.body }}",
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "id": "c14984ec-8863-4041-b1db-93c3e5018aec",
+      "name": "Gemini: Compare Reframe",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1540,
+        660
+      ],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 3000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const CFG = $('Config').first().json;\nconst LOC = CFG.locale || 'en-US';\nconst LANG = CFG.language || 'English';\nconst geminiText = j => { try { return (j.candidates[0].content.parts || []).filter(p => !p.thought).map(p => p.text || '').join(''); } catch (e) { return ''; } };\nconst parseJson = t => { try { return JSON.parse(String(t || '').replace(/```(?:json)?/gi, '').trim()); } catch (e) { return null; } };\nconst JEV_MODEL = CFG.jev_model || 'typesafe/jev-1.13';\nconst src = $('Read Photo').first().json;\nconst pct = $('Build Reframe Check').first().json.pct;\nconst rep = parseJson(geminiText($json));\n// Gemini sees and reports; Jev only decides from the report\nconst Q = {\n  frame_truthful: {type: 'noul', instructions: 'Based on the comparison report, does image 2 still truthfully show the same dish as the original photo (same food, same garnish and sides, nothing important invented or removed)? Minor background, lighting, crop or plate-edge extension changes are fine.', criteria: {true: 'Same dish, truthful recomposition', false: 'The food was changed, invented, duplicated or removed in a way a customer would notice'}},\n  frame_quality: {type: 'score', instructions: 'How usable is image 2 as an advertising photo, considering visual defects, whether the top area is clear for text, and dish prominence?', criteria: ['unusable', 'poor', 'acceptable', 'good']}\n};\nconst body = rep ? {model: JEV_MODEL, state: {format: src.kind, required_empty_top_percent: pct, comparison_report: rep}, questions: Q}\n  : {model: JEV_MODEL, state: 'connectivity check', questions: {ok: {type: 'noul', instructions: 'Is this a connectivity check?', criteria: {true: 'yes', false: 'no'}}}};\nreturn [{json: {rep, body}}];\n"
+      },
+      "id": "a0f54164-cbed-4950-a79a-d9b7bbe020fb",
+      "name": "Reframe Report",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1760,
+        660
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "bbc2152d-4cba-4cc5-be95-cbf8a0838082",
+              "leftValue": "={{ $('Config').first().json.jev_enabled }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "2d672ba5-cd22-4f2b-932a-d5242434c6d4",
+      "name": "Jev On? (Reframe)",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1980,
+        660
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/alpha/decisions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.body }}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "7c5d7448-bbcc-4ffd-9b6a-b857e4b152d0",
+      "name": "Jev: Judge Reframe",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        2200,
+        560
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const CFG = $('Config').first().json;\nconst LOC = CFG.locale || 'en-US';\nconst LANG = CFG.language || 'English';\nconst src = $('Read Photo').first().json;\nconst k = $('Save Reframe').first().json;\nconst rep = $('Reframe Report').first().json.rep;\nconst a = $json.answers;\nlet status, accept = true, truthful = null, quality = null; const why = [];\nif (!rep) { status = 'not checked (no Gemini report)'; }\nelse {\n  if (rep.text_or_logo_generated === true) why.push('text/logo was added to the image');\n  if (rep.people_or_hands === true) why.push('people/hands were added');\n  if (a && a.frame_truthful && a.frame_quality) {\n    status = 'jev'; truthful = a.frame_truthful.noul; quality = a.frame_quality.score;\n    if (truthful < 0.5) why.push('the dish changed (' + (rep.main_dish_notes || '') + ')');\n    if (quality < 1.5) why.push('low reframe quality' + (rep.top_area_clear === false ? ' / top area not clear' : ''));\n  } else {\n    // Jev unreachable or disabled: decide on Gemini's own findings\n    status = CFG.jev_enabled === false ? 'gemini (Jev disabled)' : 'gemini (Jev unreachable)';\n    if (rep.main_dish_same === false) why.push('the dish changed');\n    if (rep.top_area_clear === false) why.push('top area not clear');\n  }\n  accept = why.length === 0;\n}\nreturn [{json: {framePath: accept ? k.framePath : src.rawPath, frameOk: accept && k.frameOk === true,\n  frameCheck: {status, accept, truthful, quality, why: why.join(', '), notes: rep ? rep.main_dish_notes || '' : '', top: rep ? rep.top_area_notes || '' : '',\n    added: rep && Array.isArray(rep.added_food) ? rep.added_food : [], removed: rep && Array.isArray(rep.removed_food) ? rep.removed_food : [],\n    defects: rep && Array.isArray(rep.visual_defects) ? rep.visual_defects : []}}}];\n"
+      },
+      "id": "37a4c8bb-a634-4be1-8bab-c30b23edf0b1",
+      "name": "Reframe Decision",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2420,
+        660
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Renders the final JPG with scripts/render_one.sh and builds the caption + exactly 5 hashtags.\nconst fs = require('fs');\nconst {execFile} = require('child_process');\nconst CFG = $('Config').first().json;\nconst LOC = CFG.locale || 'en-US';\nconst LANG = CFG.language || 'English';\nconst ROOT = CFG.data_dir;\nconst src = $('Read Photo').first().json;\nconst content = $('Save Approved Copy').first().json;\nconst framePath = $json.framePath || src.rawPath;\n// \"env\" adds the settings to the inherited environment of the render script\nconst envArgs = ['IG_DATA_DIR=' + ROOT, 'IG_FONT=' + (CFG.font_path || ROOT + '/assets/font.ttf'), 'IG_PRODUCT_PREFIX=' + (CFG.product_prefix || ''),\n  'IG_SLOGAN_COLOR=' + (CFG.slogan_color || '#FFFFFF'), 'IG_ACCENT_COLOR=' + (CFG.accent_color || '#E63946')];\nawait new Promise((resolve, reject) => execFile('env', [...envArgs, 'sh', ROOT + '/scripts/render_one.sh', src.kind, framePath, src.base, content.redTitle, content.dish],\n  {timeout: 280000, maxBuffer: 10485760}, (err, out, stderr) => err ? reject(new Error(stderr || err.message)) : resolve(out)));\nconst file = src.base + '.jpg';\nconst path = ROOT + '/state/ledger.json'; const ledger = JSON.parse(fs.readFileSync(path, 'utf8'));\nconst entry = ledger.entries.find(e => e.base === src.base); if (!entry) throw new Error('Ledger entry not found: ' + src.base);\nentry.status = 'ready'; entry.imageFile = file; entry.framed = $json.frameOk === true; entry.frameCheck = $json.frameCheck || null; entry.readyAt = new Date().toISOString();\nconst tmp = path + '.tmp'; fs.writeFileSync(tmp, JSON.stringify(ledger, null, 2)); fs.renameSync(tmp, path);\n// Hashtags: brand + product + category + city + one rotating discovery tag (exactly 5)\nconst lower = x => String(x || '').toLocaleLowerCase(LOC);\n// ASCII folding for tags: \"Crème Brûlée\" -> \"cremebrulee\"\nconst FOLD = {'ı': 'i', 'ł': 'l', 'ø': 'o', 'æ': 'ae', 'œ': 'oe', 'ß': 'ss', 'đ': 'd', 'ð': 'd', 'þ': 'th'};\nconst slug = x => lower(x).normalize('NFKD').replace(/[̀-ͯ]/g, '').replace(/[ıłøæœßđðþ]/g, ch => FOLD[ch]).replace(/[^a-z0-9]+/g, '');\nconst shortDish = content.dish.replace(/\\s*\\([^)]*\\)\\s*/g, ' ').replace(/\\s+/g, ' ').trim();\nconst toRe = m => { try { return new RegExp(m, 'iu'); } catch (e) { return null; } };\nconst cats = Array.isArray(CFG.hashtag_categories) ? CFG.hashtag_categories : [];\nconst cat = cats.find(c => c.match && toRe(c.match) && toRe(c.match).test(shortDish)) || cats.find(c => !c.match) || {tag: ''};\nconst H = CFG.hashtags || {};\n// The discovery tag rotates so the same tag set does not repeat on every post\nconst discovery = H.discovery || [];\nconst spot = discovery.length ? discovery[ledger.entries.filter(e => e.status === 'published').length % discovery.length] : '';\n// A very long product tag becomes a tag nobody searches for: keep the last two words\nlet dishTag = slug(shortDish);\nif (dishTag.length > 20) { const w = shortDish.split(/\\s+/); dishTag = slug(w.slice(-2).join(' ')); }\nconst tag = t => t ? '#' + String(t).replace(/^#/, '') : '';\nconst pool = [tag(H.brand), tag(dishTag), tag(slug(cat.tag)), tag(H.city), tag(spot), ...(H.fallback || []).map(tag)];\nconst tags = [];\nfor (const t of pool) { if (tags.length < 5 && t.length > 1 && !tags.some(x => lower(x) === lower(t))) tags.push(t); }\nconst captionFull = content.caption + '\\n\\n' + tags.join(' ');\nreturn [{json: {base: src.base, kind: src.kind, hash: src.sourceHash, dish: content.dish, caption: content.caption, captionFull, imageFile: file,\n  imageUrl: CFG.public_media_url + encodeURIComponent(file)}}];\n"
+      },
+      "id": "bca3a6e8-7bd5-49cb-836c-8531064ece1d",
+      "name": "Render Image",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2640,
+        820
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "177bda91-9f2b-4311-afb1-6f93bae9a264",
+              "leftValue": "={{ $('Config').first().json.dry_run }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "ab650e28-8685-4408-b40f-2f45b2f78cd2",
+      "name": "Dry Run?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        2860,
+        820
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Dry run: the image was rendered but nothing goes to Instagram. The photo stays available for real runs.\nconst fs = require('fs');\nconst CFG = $('Config').first().json;\nconst LOC = CFG.locale || 'en-US';\nconst LANG = CFG.language || 'English';\nconst d = $('Render Image').first().json;\nconst p = CFG.data_dir + '/state/ledger.json';\nconst ledger = JSON.parse(fs.readFileSync(p, 'utf8'));\nconst entry = ledger.entries.find(e => e.base === d.base);\nif (entry) { entry.status = 'dry_run'; entry.dryRunAt = new Date().toISOString();\n  const tmp = p + '.tmp'; fs.writeFileSync(tmp, JSON.stringify(ledger, null, 2)); fs.renameSync(tmp, p); }\nreturn [{json: {dryRun: true, kind: d.kind, base: d.base, imageFile: d.imageFile, imageUrl: d.imageUrl}}];\n"
+      },
+      "id": "daf3ef6d-e11a-46e9-8a0c-799e681185c3",
+      "name": "Dry Run: Mark Ledger",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3080,
+        660
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "06eef82b-1581-43f5-9666-f582fc40511d",
+              "leftValue": "={{ $json.kind }}",
+              "rightValue": "post",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "5cd5236a-cbe3-4d25-928d-05ca45594ca6",
+      "name": "Is Post?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        440,
+        1500
+      ]
+    },
+    {
+      "parameters": {
+        "httpRequestMethod": "POST",
+        "graphApiVersion": "={{ $('Config').first().json.graph_api_version }}",
+        "node": "={{ $('Config').first().json.ig_user_id }}",
+        "edge": "media",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "image_url",
+                "value": "={{ $json.imageUrl }}"
+              },
+              {
+                "name": "caption",
+                "value": "={{ $json.captionFull }}"
+              }
+            ]
+          }
+        }
+      },
+      "id": "0015276c-09f0-41cf-8f1b-adbd4aba321e",
+      "name": "Create Post Container",
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        660,
+        1400
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "httpRequestMethod": "POST",
+        "graphApiVersion": "={{ $('Config').first().json.graph_api_version }}",
+        "node": "={{ $('Config').first().json.ig_user_id }}",
+        "edge": "media",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "image_url",
+                "value": "={{ $json.imageUrl }}"
+              },
+              {
+                "name": "media_type",
+                "value": "STORIES"
+              }
+            ]
+          }
+        }
+      },
+      "id": "382da373-bb91-4826-a79a-8c6ba733178a",
+      "name": "Create Story Container",
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        660,
+        1600
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "amount": 30
+      },
+      "id": "23ede0e8-ea29-40b6-b784-839afd57a0a4",
+      "name": "Wait for Meta 1",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        880,
+        1500
+      ],
+      "webhookId": "43278681-3b52-41c2-a63d-ba9eb7bddfc3"
+    },
+    {
+      "parameters": {
+        "graphApiVersion": "={{ $('Config').first().json.graph_api_version }}",
+        "node": "={{ $json.id }}",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "fields",
+                "value": "status_code"
+              }
+            ]
+          }
+        }
+      },
+      "id": "f739e8b7-cd09-4ef4-b607-ccedf6b0ebe7",
+      "name": "Container Status 1",
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        1100,
+        1500
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "954344d0-03a8-40c1-ba38-91d7112555db",
+              "leftValue": "={{ $json.status_code }}",
+              "rightValue": "FINISHED",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "52f511f5-205e-4180-92a5-fc96809aec4d",
+      "name": "Container Ready 1?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1320,
+        1500
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 30
+      },
+      "id": "5af525ce-c657-49a3-b059-cb2abbe582cc",
+      "name": "Wait for Meta 2",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1540,
+        1660
+      ],
+      "webhookId": "0f6a8674-b53e-4ea1-a8ab-d9c3664ad656"
+    },
+    {
+      "parameters": {
+        "graphApiVersion": "={{ $('Config').first().json.graph_api_version }}",
+        "node": "={{ $json.id }}",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "fields",
+                "value": "status_code"
+              }
+            ]
+          }
+        }
+      },
+      "id": "246883b7-dcd4-46e6-86e0-0d50c4aced07",
+      "name": "Container Status 2",
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        1760,
+        1660
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "4aa7c34c-6826-48a2-8d67-895bf76e9be0",
+              "leftValue": "={{ $json.status_code }}",
+              "rightValue": "FINISHED",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d9f3b8ba-ebe5-4fd9-88ed-37e782c165a6",
+      "name": "Container Ready 2?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1980,
+        1660
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 30
+      },
+      "id": "9d9e96c0-b617-4122-86e2-62e201e8ee9f",
+      "name": "Wait for Meta 3",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2200,
+        1820
+      ],
+      "webhookId": "0809fe14-9311-4a06-9d8a-30083ea7bcea"
+    },
+    {
+      "parameters": {
+        "graphApiVersion": "={{ $('Config').first().json.graph_api_version }}",
+        "node": "={{ $json.id }}",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "fields",
+                "value": "status_code"
+              }
+            ]
+          }
+        }
+      },
+      "id": "7621cf6b-f9e2-4769-8614-3f3efba57776",
+      "name": "Container Status 3",
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        2420,
+        1820
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "850218a4-75f1-4523-ab4e-9e7460fdf24c",
+              "leftValue": "={{ $json.status_code }}",
+              "rightValue": "FINISHED",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "ab5df962-aae9-4a92-a926-b11886e519b0",
+      "name": "Container Ready 3?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        2640,
+        1820
+      ]
+    },
+    {
+      "parameters": {
+        "errorMessage": "The Meta media container was not ready after three checks; see the \"ready\" entry in state/ledger.json."
+      },
+      "id": "e09cee2c-b696-4e4e-b13d-47438ed76388",
+      "name": "Container Not Ready",
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        2860,
+        1980
+      ]
+    },
+    {
+      "parameters": {
+        "httpRequestMethod": "POST",
+        "graphApiVersion": "={{ $('Config').first().json.graph_api_version }}",
+        "node": "={{ $('Config').first().json.ig_user_id }}",
+        "edge": "media_publish",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "creation_id",
+                "value": "={{ $json.id }}"
+              }
+            ]
+          }
+        }
+      },
+      "id": "9f8cf75f-f3d1-47b5-bbe9-1bf13a57dd65",
+      "name": "Publish to Instagram",
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        2860,
+        1500
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "jsCode": "const fs = require('fs');\nconst CFG = $('Config').first().json;\nconst LOC = CFG.locale || 'en-US';\nconst LANG = CFG.language || 'English';\nconst d = $('Render Image').first().json;\nconst p = CFG.data_dir + '/state/ledger.json';\nconst ledger = JSON.parse(fs.readFileSync(p, 'utf8'));\nconst entry = ledger.entries.find(e => e.base === d.base);\nif (!entry) throw new Error('Ledger entry not found: ' + d.base);\nentry.status = 'published'; entry.publishedAt = new Date().toISOString(); entry.mediaId = String($json.id || '');\nif (!entry.mediaId) throw new Error('Meta did not return a media id');\nconst tmp = p + '.tmp'; fs.writeFileSync(tmp, JSON.stringify(ledger, null, 2)); fs.renameSync(tmp, p);\nreturn [{json: {ok: true, kind: d.kind, base: d.base, mediaId: entry.mediaId}}];\n"
+      },
+      "id": "dc5a4653-7194-4bef-b72b-5d2c11aebe17",
+      "name": "Save Published",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3080,
+        1500
+      ]
+    },
+    {
+      "parameters": {
+        "graphApiVersion": "={{ $('Config').first().json.graph_api_version }}",
+        "node": "={{ $json.mediaId }}",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "fields",
+                "value": "permalink,timestamp"
+              }
+            ]
+          }
+        }
+      },
+      "id": "3576b81f-f4f1-424d-9e5c-5577ae15287c",
+      "name": "Get Permalink",
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "typeVersion": 1,
+      "position": [
+        3300,
+        1500
+      ],
+      "retryOnFail": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// HTML report with the image, the chosen copy, every candidate with its Jev score, and the reframe verdict.\n// This node and the email node continue on error: a failed email never breaks publishing.\nconst fs = require('fs');\nconst CFG = $('Config').first().json;\nconst LOC = CFG.locale || 'en-US';\nconst LANG = CFG.language || 'English';\nconst c = $('Save Approved Copy').first().json;\nconst p = $('Render Image').first().json;\nconst dry = $('Dry Run: Mark Ledger').isExecuted;\nconst y = $('Save Published').isExecuted ? $('Save Published').first().json : {mediaId: ''};\nconst f = $('Reframe Decision').isExecuted ? $('Reframe Decision').first().json.frameCheck : null;\nconst framed = $('Save Reframe').first().json.frameOk === true;\nconst link = dry ? '' : ($json.permalink || '');\nconst esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\"/g, '&quot;');\nconst post = c.kind === 'post';\nconst ACCENT = CFG.accent_color || '#E63946';\n// $now is in the workflow/instance timezone (set GENERIC_TIMEZONE or the workflow timezone)\nlet when; try { when = $now.setLocale(LOC).toLocaleString({dateStyle: 'long', timeStyle: 'short'}); } catch (e) { when = new Date().toISOString(); }\nconst LABELS = {dish_mismatch: 'dish mismatch', title_grammar: 'broken headline language', caption_grammar: 'broken caption language', ungrounded: 'detail not in photo',\n  off_focus: 'headline not about the dish', appeal: 'flat headline', caption_appeal: 'flat caption', grammar: 'grammar', incomplete_title: 'unfinished headline', cliche: 'cliché', repeats_dish: 'repeats dish name'};\nconst pct = x => x == null ? '—' : Math.round(x * 100);\nconst td = 'padding:6px 8px;border-top:1px solid #eee;font-size:13px';\nconst rows = (c.rated || []).slice().sort((a, b) => (b.q == null ? 50 : b.q * 100) - (a.q == null ? 50 : a.q * 100)).map(x => {\n  const chosen = x.id === c.chosenId;\n  const note = chosen ? '<b style=\"color:#1a7f37\">chosen</b>' : (x.gates && x.gates.length ? '<span style=\"color:#b42318\">dropped: ' + esc(x.gates.map(g => LABELS[g] || g).join(', ')) + '</span>' : 'lower score');\n  const diag = (x.diag || []).filter(g => !(x.gates || []).includes(g)).map(g => LABELS[g] || g).join(', ');\n  return '<tr style=\"' + (chosen ? 'background:#f0f9f1' : '') + '\"><td style=\"' + td + '\">' + (x.round === 2 ? 'revision' : 'first') + '</td>' +\n    '<td style=\"' + td + '\"><b>' + esc(x.redTitle) + '</b>' + (post ? '<br><span style=\"color:#555\">' + esc(x.caption) + '</span>' : '') +\n    (diag ? '<br><span style=\"color:#8a6d00;font-size:12px\">Jev note: ' + esc(diag) + '</span>' : '') + '</td>' +\n    '<td style=\"' + td + ';text-align:center\"><b>' + pct(x.q) + '</b></td>' +\n    '<td style=\"' + td + ';font-size:12px\">' + note + '</td></tr>';\n}).join('') + (c.codeFails || []).map(x => '<tr><td style=\"' + td + '\">' + (x.round === 2 ? 'revision' : 'first') + '</td><td style=\"' + td + ';color:#777\">' + esc(x.redTitle) + '</td><td style=\"' + td + ';text-align:center;color:#777\">—</td><td style=\"' + td + ';font-size:12px;color:#b42318\">rule: ' + esc(x.fail) + '</td></tr>').join('');\nconst chosen = (c.rated || []).find(x => x.id === c.chosenId) || {};\nlet frameHtml;\nif (!framed && !f) frameHtml = 'AI reframe could not be generated; the original photo was used.';\nelse if (f && !f.accept) frameHtml = '<span style=\"color:#b42318\">AI reframe rejected; the original photo was used</span> — ' + esc(f.why);\nelse frameHtml = 'AI reframe approved' + (f && f.truthful != null ? ' — same dish: ' + pct(f.truthful) + '%, reframe quality: ' + (Math.round(f.quality * 10) / 10) + '/3' : '') + (f && f.status !== 'jev' ? ' (' + esc(f.status) + ')' : '');\nif (f && (f.added.length || f.removed.length || f.defects.length)) frameHtml += '<br><span style=\"color:#8a6d00;font-size:12px\">Gemini note: ' + esc([f.added.length ? 'added: ' + f.added.join(', ') : '', f.removed.length ? 'removed: ' + f.removed.join(', ') : '', f.defects.length ? 'defects: ' + f.defects.join(', ') : ''].filter(Boolean).join(' · ')) + '</span>';\nconst jevLine = c.jevStatus === 'unreachable' ? '<span style=\"color:#b42318\">Jev was unreachable; the first candidate that passed the rule checks was used.</span>'\n  : c.jevStatus === 'disabled' ? 'Jev is disabled (jev_enabled = false); the first candidate that passed the rule checks was used.'\n  : (c.revised ? 'The first candidates did not score high enough; Gemini rewrote them from Jev\\'s diagnoses and all candidates competed together.' : 'The best first-round candidate scored high enough right away.');\nconst kindName = post ? 'Post' : 'Story';\nconst prefix = String(CFG.product_prefix || '').trim();\nconst shortDish = c.dish.replace(/\\s*\\([^)]*\\)\\s*/g, ' ').trim();\nconst productLine = prefix && !shortDish.toLocaleLowerCase(LOC).startsWith(prefix.toLocaleLowerCase(LOC)) ? prefix + ' ' + shortDish : shortDish;\nconst subject = (dry ? '🧪 Dry run — ' : '✅ ') + CFG.brand_name + ' ' + kindName.toLowerCase() + (dry ? ' rendered (not published): ' : ' is live: ') + c.dish;\nconst html = '<div style=\"font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;max-width:640px;margin:0 auto;color:#1d1d1f\">' +\n '<div style=\"background:' + esc(ACCENT) + ';color:#fff;padding:16px 20px;border-radius:10px 10px 0 0\"><div style=\"font-size:13px;opacity:.85\">' + esc(CFG.brand_name) + ' · Instagram · ' + kindName + '</div>' +\n '<div style=\"font-size:20px;font-weight:700;margin-top:4px\">' + esc(c.dish) + (dry ? ' rendered (dry run)' : ' published') + '</div><div style=\"font-size:13px;opacity:.85;margin-top:2px\">' + esc(when) + '</div></div>' +\n '<div style=\"border:1px solid #eee;border-top:0;padding:18px 20px;border-radius:0 0 10px 10px\">' +\n (dry ? '<p style=\"margin:0 0 14px;color:#8a6d00\">Dry run: nothing was sent to Instagram. Set <b>dry_run</b> to false in the Config node to publish.</p>'\n   : (link ? '<p style=\"margin:0 0 14px\"><a href=\"' + esc(link) + '\" style=\"background:#1d1d1f;color:#fff;text-decoration:none;padding:9px 16px;border-radius:6px;font-size:14px;display:inline-block\">Open on Instagram</a></p>'\n   : '<p style=\"color:#b42318\">Could not fetch the Instagram link (media id: ' + esc(y.mediaId) + ')</p>')) +\n '<img src=\"' + esc(p.imageUrl) + '\" alt=\"Published image\" style=\"width:100%;max-width:' + (post ? '420' : '300') + 'px;border-radius:8px;display:block;margin:0 0 16px\">' +\n '<table style=\"border-collapse:collapse;width:100%;font-size:14px;margin-bottom:14px\">' +\n '<tr><td style=\"padding:4px 0;color:#666;width:120px;vertical-align:top\">Headline</td><td style=\"padding:4px 0\"><b>' + esc(c.redTitle) + '</b></td></tr>' +\n '<tr><td style=\"padding:4px 0;color:#666;vertical-align:top\">Product line</td><td style=\"padding:4px 0;color:' + esc(ACCENT) + '\"><b>' + esc(productLine) + '</b></td></tr>' +\n (post ? '<tr><td style=\"padding:4px 0;color:#666;vertical-align:top\">Caption</td><td style=\"padding:4px 0;white-space:pre-wrap\">' + esc(p.captionFull) + '</td></tr>' : '') +\n '<tr><td style=\"padding:4px 0;color:#666;vertical-align:top\">Source</td><td style=\"padding:4px 0;font-size:13px\">' + esc(c.sourceFile) + ' · dish from: ' + esc(c.dishSource) + ' · tone: ' + esc(c.angle) + '</td></tr>' +\n '<tr><td style=\"padding:4px 0;color:#666;vertical-align:top\">Reframe</td><td style=\"padding:4px 0;font-size:13px\">' + frameHtml + '</td></tr></table>' +\n '<div style=\"font-size:15px;font-weight:700;margin:18px 0 6px\">Jev copy review — chosen score ' + pct(chosen.q) + '/100</div>' +\n '<div style=\"font-size:13px;color:#444;margin-bottom:8px\">' + jevLine + '</div>' +\n '<table style=\"border-collapse:collapse;width:100%\"><tr style=\"background:#fafafa\"><th style=\"text-align:left;padding:6px 8px;font-size:12px;color:#666\">Round</th><th style=\"text-align:left;padding:6px 8px;font-size:12px;color:#666\">Candidate</th><th style=\"padding:6px 8px;font-size:12px;color:#666\">Score</th><th style=\"text-align:left;padding:6px 8px;font-size:12px;color:#666\">Status</th></tr>' + rows + '</table>' +\n '<p style=\"font-size:11px;color:#999;margin-top:18px\">Score: weighted average of Jev (' + esc(CFG.jev_model || 'typesafe/jev-1.13') + ') answers on headline focus, appetite appeal, ' + esc(LANG) + ' naturalness' + (post ? ', caption faithfulness to the photo and caption appeal' : '') + '. Media id ' + esc(y.mediaId || '—') + '</p>' +\n '</div></div>';\nconst file = CFG.data_dir + '/out/' + p.imageFile;\nconst binary = {};\ntry { binary.data = await this.helpers.prepareBinaryData(fs.readFileSync(file), p.imageFile, 'image/jpeg'); } catch (e) {}\nreturn [{json: {subject, html}, binary}];\n"
+      },
+      "id": "c2a6547d-77fc-408e-87ee-3596b10e26f4",
+      "name": "Build Email",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3520,
+        1500
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $('Config').first().json.email_from }}",
+        "toEmail": "={{ $('Config').first().json.email_to }}",
+        "subject": "={{ $json.subject }}",
+        "html": "={{ $json.html }}",
+        "options": {
+          "attachments": "data",
+          "appendAttribution": false
+        }
+      },
+      "id": "f670c2c0-59cd-4960-841b-be459c01a688",
+      "name": "Send Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        3740,
+        1500
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "content": "## Instagram Autopilot: posts & stories\nPhoto folder -> designed post/story -> Instagram. Gemini sees and writes, Jev (a typed decision model) judges, and nothing is published unless it passes the gates.\n\n**Setup**\n1. Put photos in `<data_dir>/photos`, your product names in `state/menu.json`, overlays + a font in `assets/`, the scripts in `scripts/` (see README).\n2. Credentials: Google Gemini (PaLM) API, Header Auth for OpenRouter (Jev), Facebook Graph API, Telegram, SMTP.\n3. Fill in the **Config** node.\n4. Leave `dry_run: true` for the first runs: everything is rendered and emailed, nothing is posted.\n5. Set this workflow's *Error workflow* to **Instagram Autopilot - Error Notifier**.\n6. Set `dry_run: false` and activate.\n\n**Schedule** (edit the two trigger nodes): posts Tue/Fri/Sun 11:30, stories Mon/Wed/Thu/Sat 17:30. The timezone is the workflow/instance timezone (`GENERIC_TIMEZONE`).",
+        "height": 760,
+        "width": 460,
+        "color": 4
+      },
+      "id": "0339dd91-1454-4bc7-b07e-bcd6a9a53111",
+      "name": "Note: Setup",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -560,
+        -420
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### 1. Pick and understand the photo\nUnused photo (sha256 ledger) -> Gemini 3.1 Pro: dish, visible items, scene, 3 copy options.\nDish name priority: owner override > photo->dish catalog > AI guess (only if it is on the menu and confidence >= 0.9). Otherwise nothing is posted and Telegram asks for a review.",
+        "height": 200,
+        "width": 1060
+      },
+      "id": "e5ba0dfb-1225-4b02-9478-5f232e86a535",
+      "name": "Note: Understand",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        420,
+        -260
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### 2. Copy: Gemini writes, Jev judges\nRule checks first (length, dish name, banned phrases, repeats). Every surviving candidate gets its own Jev request. Weighted score + hard gates (dish match, headline language, caption language, faithfulness). Best < `jev_min_score` -> Jev's diagnoses become revision instructions for Gemini Flash; both rounds compete. Nothing passes -> no post, Telegram review. Jev unreachable/disabled -> first candidate that passed the rules.",
+        "height": 240,
+        "width": 1180
+      },
+      "id": "c24d865c-7085-4d39-ae87-b32950cf1f71",
+      "name": "Note: Copy",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1520,
+        -520
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### 3. AI reframe + truthfulness check\nGemini 3 Pro Image recomposes the photo to 4:5 / 9:16 with the top ~30-34% empty for text. Gemini Flash compares original vs reframe, Jev decides (same dish >= 0.5 and quality >= 1.5/3). Rejected or failed -> the original photo is used.",
+        "height": 180,
+        "width": 1300
+      },
+      "id": "a2fbc7d6-2ac9-42c1-a02f-0bc62251971a",
+      "name": "Note: Reframe",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        420,
+        430
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### 4. Render\n`scripts/render_one.sh` (GraphicsMagick) composes overlay + white slogan + accent product line, then exactly 5 hashtags. `dry_run: true` stops here and emails the preview.",
+        "height": 180,
+        "width": 700
+      },
+      "id": "55c87038-511a-4008-ac22-b8e0b4b4662a",
+      "name": "Note: Render",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2600,
+        430
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### 5. Publish + report\nContainer -> status polling (3 x 30 s) -> media_publish -> permalink -> HTML email with the image and every candidate's score. Email errors never break publishing.",
+        "height": 180,
+        "width": 1300
+      },
+      "id": "6c035aac-831c-40fe-85c4-ce3afe9283d8",
+      "name": "Note: Publish",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        420,
+        1200
+      ]
+    }
+  ],
+  "connections": {
+    "Post Schedule": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Story Schedule": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "Pick Photo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pick Photo": {
+      "main": [
+        [
+          {
+            "node": "Read Photo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Photo": {
+      "main": [
+        [
+          {
+            "node": "Analyze Photo (Gemini)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze Photo (Gemini)": {
+      "main": [
+        [
+          {
+            "node": "Validate Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Analysis": {
+      "main": [
+        [
+          {
+            "node": "Needs Review?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Needs Review?": {
+      "main": [
+        [
+          {
+            "node": "Telegram: Review Needed",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Jev Questions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Jev Questions": {
+      "main": [
+        [
+          {
+            "node": "Jev On?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Jev On?": {
+      "main": [
+        [
+          {
+            "node": "Jev: Score Copy",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Copy Decision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Jev: Score Copy": {
+      "main": [
+        [
+          {
+            "node": "Copy Decision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Copy Decision": {
+      "main": [
+        [
+          {
+            "node": "Needs Revision?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Needs Revision?": {
+      "main": [
+        [
+          {
+            "node": "Gemini: Write Revision",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Save Approved Copy",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini: Write Revision": {
+      "main": [
+        [
+          {
+            "node": "Revision Questions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Revision Questions": {
+      "main": [
+        [
+          {
+            "node": "Jev On? (Revision)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Jev On? (Revision)": {
+      "main": [
+        [
+          {
+            "node": "Jev: Score Revision",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Final Copy Decision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Jev: Score Revision": {
+      "main": [
+        [
+          {
+            "node": "Final Copy Decision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Final Copy Decision": {
+      "main": [
+        [
+          {
+            "node": "Copy Approved?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Copy Approved?": {
+      "main": [
+        [
+          {
+            "node": "Save Approved Copy",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram: Review Needed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Approved Copy": {
+      "main": [
+        [
+          {
+            "node": "Build Reframe Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Reframe Request": {
+      "main": [
+        [
+          {
+            "node": "Gemini: AI Reframe",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini: AI Reframe": {
+      "main": [
+        [
+          {
+            "node": "Save Reframe",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Reframe": {
+      "main": [
+        [
+          {
+            "node": "Reframe Produced?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reframe Produced?": {
+      "main": [
+        [
+          {
+            "node": "Build Reframe Check",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Render Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Reframe Check": {
+      "main": [
+        [
+          {
+            "node": "Gemini: Compare Reframe",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini: Compare Reframe": {
+      "main": [
+        [
+          {
+            "node": "Reframe Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reframe Report": {
+      "main": [
+        [
+          {
+            "node": "Jev On? (Reframe)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Jev On? (Reframe)": {
+      "main": [
+        [
+          {
+            "node": "Jev: Judge Reframe",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reframe Decision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Jev: Judge Reframe": {
+      "main": [
+        [
+          {
+            "node": "Reframe Decision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reframe Decision": {
+      "main": [
+        [
+          {
+            "node": "Render Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Render Image": {
+      "main": [
+        [
+          {
+            "node": "Dry Run?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dry Run?": {
+      "main": [
+        [
+          {
+            "node": "Dry Run: Mark Ledger",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Is Post?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dry Run: Mark Ledger": {
+      "main": [
+        [
+          {
+            "node": "Build Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Post?": {
+      "main": [
+        [
+          {
+            "node": "Create Post Container",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create Story Container",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Post Container": {
+      "main": [
+        [
+          {
+            "node": "Wait for Meta 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Story Container": {
+      "main": [
+        [
+          {
+            "node": "Wait for Meta 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for Meta 1": {
+      "main": [
+        [
+          {
+            "node": "Container Status 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Container Status 1": {
+      "main": [
+        [
+          {
+            "node": "Container Ready 1?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Container Ready 1?": {
+      "main": [
+        [
+          {
+            "node": "Publish to Instagram",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait for Meta 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for Meta 2": {
+      "main": [
+        [
+          {
+            "node": "Container Status 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Container Status 2": {
+      "main": [
+        [
+          {
+            "node": "Container Ready 2?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Container Ready 2?": {
+      "main": [
+        [
+          {
+            "node": "Publish to Instagram",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait for Meta 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for Meta 3": {
+      "main": [
+        [
+          {
+            "node": "Container Status 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Container Status 3": {
+      "main": [
+        [
+          {
+            "node": "Container Ready 3?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Container Ready 3?": {
+      "main": [
+        [
+          {
+            "node": "Publish to Instagram",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Container Not Ready",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Publish to Instagram": {
+      "main": [
+        [
+          {
+            "node": "Save Published",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Published": {
+      "main": [
+        [
+          {
+            "node": "Get Permalink",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Permalink": {
+      "main": [
+        [
+          {
+            "node": "Build Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Email": {
+      "main": [
+        [
+          {
+            "node": "Send Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  }
+}
