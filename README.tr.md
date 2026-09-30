@@ -3,6 +3,8 @@
 **Yerel bir işletme için otomatik pilotta Instagram: bir klasör yemek fotoğrafından tasarımlı gönderilere, hikâyelere ve haftalık bir yapay zekâ reels videosuna.
 Yapay zekâ yazar, bir karar modeli değerlendirir; kapılardan geçmeyen hiçbir şey yayınlanmaz.**
 
+Dosya bağlama veya render betiği gerektirmeyen, tek iş akışlı taşınabilir sürüm için [`workflows/human-approved-instagram-post.json`](workflows/human-approved-instagram-post.json) dosyasını kullanın. Akış, herkese açık bir ürün fotoğrafından güvenlik kontrollerinden geçen Gemini taslağı üretir, Telegram'da insan onayı bekler ve yalnızca onaydan sonra Instagram'da yayınlar.
+
 [![n8n](https://img.shields.io/badge/n8n-2.x-EA4B71?logo=n8n&logoColor=white)](https://n8n.io)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Self-hosted](https://img.shields.io/badge/self--hosted-Docker-2ea44f)](#gereksinimler)

@@ -3,6 +3,8 @@
 **Instagram on autopilot for a local business: from a folder of food photos to designed posts, stories and a weekly AI reel.
 AI writes, a decision model judges, and nothing gets published unless it passes the gates.**
 
+For a portable, single-workflow version that runs without filesystem mounts or rendering scripts, use [`workflows/human-approved-instagram-post.json`](workflows/human-approved-instagram-post.json). It turns a public product image into a guarded Gemini draft, pauses for human approval in Telegram, and publishes to Instagram only after approval. The n8n template submission copy is in [`docs/template-submission.md`](docs/template-submission.md).
+
 [![n8n](https://img.shields.io/badge/n8n-2.x-EA4B71?logo=n8n&logoColor=white)](https://n8n.io)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Self-hosted](https://img.shields.io/badge/self--hosted-Docker-2ea44f)](#requirements)
